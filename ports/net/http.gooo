@@ -1,0 +1,137 @@
+// Copyright 2009 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the third_party/GO-LICENSE file.
+//
+// Adapted from Go 1.27.2 src/net/http/status.go.
+// This port preserves all StatusText results; unknown codes return empty text.
+
+package http
+namespace http
+entity Integer id "gooo://std/integer"
+entity Text id "gooo://std/text"
+
+activity StatusText(Integer) -> Text id "gooo://go/net/http/status-text" computes `// StatusContinue
+if input == 100 { return "Continue" }
+// StatusSwitchingProtocols
+if input == 101 { return "Switching Protocols" }
+// StatusProcessing
+if input == 102 { return "Processing" }
+// StatusEarlyHints
+if input == 103 { return "Early Hints" }
+// StatusOK
+if input == 200 { return "OK" }
+// StatusCreated
+if input == 201 { return "Created" }
+// StatusAccepted
+if input == 202 { return "Accepted" }
+// StatusNonAuthoritativeInfo
+if input == 203 { return "Non-Authoritative Information" }
+// StatusNoContent
+if input == 204 { return "No Content" }
+// StatusResetContent
+if input == 205 { return "Reset Content" }
+// StatusPartialContent
+if input == 206 { return "Partial Content" }
+// StatusMultiStatus
+if input == 207 { return "Multi-Status" }
+// StatusAlreadyReported
+if input == 208 { return "Already Reported" }
+// StatusIMUsed
+if input == 226 { return "IM Used" }
+// StatusMultipleChoices
+if input == 300 { return "Multiple Choices" }
+// StatusMovedPermanently
+if input == 301 { return "Moved Permanently" }
+// StatusFound
+if input == 302 { return "Found" }
+// StatusSeeOther
+if input == 303 { return "See Other" }
+// StatusNotModified
+if input == 304 { return "Not Modified" }
+// StatusUseProxy
+if input == 305 { return "Use Proxy" }
+// StatusTemporaryRedirect
+if input == 307 { return "Temporary Redirect" }
+// StatusPermanentRedirect
+if input == 308 { return "Permanent Redirect" }
+// StatusBadRequest
+if input == 400 { return "Bad Request" }
+// StatusUnauthorized
+if input == 401 { return "Unauthorized" }
+// StatusPaymentRequired
+if input == 402 { return "Payment Required" }
+// StatusForbidden
+if input == 403 { return "Forbidden" }
+// StatusNotFound
+if input == 404 { return "Not Found" }
+// StatusMethodNotAllowed
+if input == 405 { return "Method Not Allowed" }
+// StatusNotAcceptable
+if input == 406 { return "Not Acceptable" }
+// StatusProxyAuthRequired
+if input == 407 { return "Proxy Authentication Required" }
+// StatusRequestTimeout
+if input == 408 { return "Request Timeout" }
+// StatusConflict
+if input == 409 { return "Conflict" }
+// StatusGone
+if input == 410 { return "Gone" }
+// StatusLengthRequired
+if input == 411 { return "Length Required" }
+// StatusPreconditionFailed
+if input == 412 { return "Precondition Failed" }
+// StatusRequestEntityTooLarge
+if input == 413 { return "Request Entity Too Large" }
+// StatusRequestURITooLong
+if input == 414 { return "Request URI Too Long" }
+// StatusUnsupportedMediaType
+if input == 415 { return "Unsupported Media Type" }
+// StatusRequestedRangeNotSatisfiable
+if input == 416 { return "Requested Range Not Satisfiable" }
+// StatusExpectationFailed
+if input == 417 { return "Expectation Failed" }
+// StatusTeapot
+if input == 418 { return "I'm a teapot" }
+// StatusMisdirectedRequest
+if input == 421 { return "Misdirected Request" }
+// StatusUnprocessableEntity
+if input == 422 { return "Unprocessable Entity" }
+// StatusLocked
+if input == 423 { return "Locked" }
+// StatusFailedDependency
+if input == 424 { return "Failed Dependency" }
+// StatusTooEarly
+if input == 425 { return "Too Early" }
+// StatusUpgradeRequired
+if input == 426 { return "Upgrade Required" }
+// StatusPreconditionRequired
+if input == 428 { return "Precondition Required" }
+// StatusTooManyRequests
+if input == 429 { return "Too Many Requests" }
+// StatusRequestHeaderFieldsTooLarge
+if input == 431 { return "Request Header Fields Too Large" }
+// StatusUnavailableForLegalReasons
+if input == 451 { return "Unavailable For Legal Reasons" }
+// StatusInternalServerError
+if input == 500 { return "Internal Server Error" }
+// StatusNotImplemented
+if input == 501 { return "Not Implemented" }
+// StatusBadGateway
+if input == 502 { return "Bad Gateway" }
+// StatusServiceUnavailable
+if input == 503 { return "Service Unavailable" }
+// StatusGatewayTimeout
+if input == 504 { return "Gateway Timeout" }
+// StatusHTTPVersionNotSupported
+if input == 505 { return "HTTP Version Not Supported" }
+// StatusVariantAlsoNegotiates
+if input == 506 { return "Variant Also Negotiates" }
+// StatusInsufficientStorage
+if input == 507 { return "Insufficient Storage" }
+// StatusLoopDetected
+if input == 508 { return "Loop Detected" }
+// StatusNotExtended
+if input == 510 { return "Not Extended" }
+// StatusNetworkAuthenticationRequired
+if input == 511 { return "Network Authentication Required" }
+return ""`

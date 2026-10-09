@@ -1,0 +1,28 @@
+// Copyright 2009 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+// Adapted from Go 1.27.2 src/unicode/utf8/utf8.go.
+// The upstream license is reproduced in third_party/GO-LICENSE.
+//
+// Rune inputs are signed int32 values represented by Gooo Integer (int64).
+// RuneStart accepts the byte domain 0..255. It returns false outside that
+// domain. Inputs are never silently truncated to Go rune or byte widths.
+package utf8
+namespace gooo_ports_unicode_utf8
+
+entity Integer id "gooo://std/integer"
+entity Boolean id "gooo://std/boolean"
+
+activity ValidRune(Integer) -> Boolean id "gooo://go/unicode/utf8/ValidRune" computes `return (input >= 0 && input < 55296) || (input > 57343 && input <= 1114111)`
+
+activity RuneLen(Integer) -> Integer id "gooo://go/unicode/utf8/RuneLen" computes `if input < 0 { return -1 }
+if input <= 127 { return 1 }
+if input <= 2047 { return 2 }
+if input >= 55296 && input <= 57343 { return -1 }
+if input <= 65535 { return 3 }
+if input <= 1114111 { return 4 }
+return -1`
+
+// The bit-mask predicate b&0xC0 != 0x80 is equivalent to excluding the
+// continuation-byte interval 128..191 within the declared byte domain.
+activity RuneStart(Integer) -> Boolean id "gooo://go/unicode/utf8/RuneStart" computes `return input >= 0 && input <= 255 && (input < 128 || input >= 192)`

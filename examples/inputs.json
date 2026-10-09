@@ -1,0 +1,29 @@
+{
+  "schema": "gooo/body-composition-inputs/v1",
+  "inputs": [
+    {
+      "app/response:Describe": 200
+    },
+    {
+      "app/response:Describe": 404
+    },
+    {
+      "app/response:Describe": 418
+    },
+    {
+      "app/response:Describe": 429
+    },
+    {
+      "app/response:Describe": 503
+    },
+    {
+      "app/response:Describe": 306
+    },
+    {
+      "app/response:Describe": -1
+    },
+    {
+      "app/response:Describe": 700
+    }
+  ]
+}

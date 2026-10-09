@@ -1,0 +1,130 @@
+# Gooo Go Ports
+
+Go로 작성된 오픈소스의 동작을 **Gooo 함수로 이식하고 원본과 비교**하는 공개 실험 저장소입니다.
+첫 묶음은 Go 표준 라이브러리의 HTTP·Unicode 함수 8개입니다.
+Go 소스를 분석해 타입·경계값·실패 동작을 명시하고, 계산은 `ports/**/*.gooo`에 구현합니다.
+Go 검증 도구는 원본 함수 호출, 입력 전달, 결과 비교와 실행 기록 저장을 맡습니다.
+
+[Gooo 컴파일러](https://github.com/kimjooyoon/meta-ontology-go)를 사용하는 독립 생태계 프로젝트입니다.
+현재 언어로 동작하는 라이브러리와 다음 이식을 막는 최소 재현 사례를 함께 쌓아
+언어 개발에 간접적으로 기여합니다. Google·Go 프로젝트의 공식 이식판은 아닙니다.
+
+## 이식한 함수
+
+| Gooo 패키지 경로 | 함수 | 원본과의 대응 |
+| --- | --- | --- |
+| `go/net/http` | `StatusText` | Go의 상태 코드 62개와 설명. 미등록 코드는 빈 문자열 |
+| `go/unicode/utf8` | `ValidRune`, `RuneLen` | Unicode 유효 코드 포인트 판정과 UTF-8 바이트 수 |
+| `go/unicode/utf8` | `RuneStart` | 0..255의 바이트가 continuation byte인지 판정. 전체 문자열 유효성 검사는 아님 |
+| `go/unicode/utf16` | `IsSurrogate`, `RuneLen` | 서로게이트 판정과 UTF-16 코드 단위 수 |
+| `go/unicode/utf16` | `DecodeRune`, `EncodeRune` | 서로게이트 쌍 변환. EncodeRune의 두 반환값은 `{high, low}` 레코드 |
+
+원본의 `rune` 입력은 int32 범위를 Gooo Integer로 전달합니다. `byte` 호환 범위는
+0..255입니다. 묵시적으로 정수 폭을 줄이지 않습니다. `RuneStart`의 범위 밖 입력은
+Gooo 확장 동작으로 false를 반환하지만 원본과의 동등성 집계에는 넣지 않습니다.
+`StatusText` 비교는 int가 64비트인 amd64·arm64에서 실행합니다.
+HTTP 서버나 UTF 인코딩 패키지 전체의 이식은 아닙니다.
+
+## 실행하기
+
+Go 1.27.2, Git, POSIX shell이 필요합니다. `go.mod`를 인식하는 Go 설치는 필요한
+도구 체인을 자동 선택할 수 있습니다. 저장소 루트에서 실행합니다.
+
+```sh
+./tools/bootstrap.sh
+go run ./cmd/verify --out out/first
+```
+
+bootstrap은 고정한 컴파일러를 `.compiler/`에 받아 `.gooo`를 빌드합니다.
+검증은 Go 도구 체인, 원본 소스 해시, 컴파일러 버전을 확인한 뒤 모든 입력을 실행하고,
+저장된 프로그램을 다시 실행합니다. 결과는 `out/first/summary.json`, 각 함수·배치의
+`execution.json`, `replay.json`, 입력 파일과 Gooo 소스에 남습니다.
+`--out`에는 기존에 없는 디렉터리를 지정합니다.
+
+실제 Gooo 앱은 상태 코드를 받아 `{code, text, known}`을 만듭니다.
+
+```sh
+mkdir -p out/demo
+./.gooo package execute --json --inputs examples/inputs.json \
+  gooo.workspace.json > out/demo/execution.json
+./.gooo package replay --json --receipt out/demo/execution.json \
+  --inputs examples/inputs.json gooo.workspace.json > out/demo/replay.json
+```
+
+예제 입력 404의 실제 결과는 다음과 같습니다.
+
+```json
+{"code":404,"text":"Not Found","known":true}
+```
+
+입력만 주는 실행은 `OBSERVED`이며, 기대값을 비교한 검증 실행의 `PASS`와 구분합니다.
+예제의 `examples/inputs.json`을 편집하면 다른 상태 코드도 실행할 수 있습니다.
+새 모델이나 외부 추론 서비스가 필요하지 않습니다.
+
+## 다른 Gooo 프로그램에서 가져오기
+
+```gooo
+package checker
+namespace checker
+import utf8 "go/unicode/utf8"
+entity Integer id "gooo://std/integer"
+entity Boolean id "gooo://std/boolean"
+activity Valid(Integer) -> Boolean computes `return utf8.ValidRune(input)`
+```
+
+원하는 포트 소스를 복사하거나 Git 리비전으로 고정하고, 사용하는 작업공간 명세에
+패키지 경로와 파일을 등록합니다. 전체 구성은 [gooo.workspace.json](gooo.workspace.json),
+실제 importing app은 [response.gooo](examples/response.gooo)에 있습니다.
+현재 배포 단위는 Gooo 소스와 workspace 명세이며 Go의 패키지 관리자와는 별개입니다.
+
+## 검증 범위
+
+고정된 Go 1.27.2 원본과 비교하는 입력은 **1,861건**입니다.
+
+| 대상 | 입력 수 | 구성 |
+| --- | ---: | --- |
+| HTTP StatusText | 625 | -10..610 전체 정수와 int64 양 끝 등 네 입력 |
+| UTF-8 ValidRune / RuneLen | 각 162 | 경계값 34개와 고정 시드 표본 128개 |
+| UTF-8 RuneStart | 256 | byte의 전체 영역 |
+| UTF-16 IsSurrogate / RuneLen / EncodeRune | 각 162 | 같은 rune 경계값·표본 |
+| UTF-16 DecodeRune | 164 | 경계값 조합 100개와 유효 쌍 64개 |
+| HTTP importing app | 6 | 기존 상태 코드와 미등록 코드 |
+
+Gooo 실행 입력 상한에 맞춰 128건 이하로 나눈 20개 배치를 실행합니다.
+모든 기대값은 Gooo 구현과 별개인 Go 표준 함수로 계산합니다.
+검증 도구는 결과뿐 아니라 입력 순서, 원본 기대값, stable activity ID, 생성 코드 해시,
+컴파일러·Go 버전, workspace·입력 파일 해시, 저장 재실행 연결을 검사합니다.
+검사 도중 소스가 바뀌어도 처음 읽은 동일한 소스 스냅샷을 모든 배치에 사용합니다.
+잘못된 출력이나 변조된 실행 근거를 `PASS`로 오인하지 않는 회귀 테스트도 포함합니다.
+
+`RuneStart` 이외 함수의 모든 입력 영역을 증명한 것은 아닙니다.
+별도 모델 학습, 성능 우위, 패키지 전체의 호환성은 검증 범위에 포함하지 않습니다.
+[첫 로컬 관측](evidence/initial.json)과 GitHub Actions의 전체 원본 artifact를 참고하세요.
+
+## 언어 개발로 돌려주는 자료
+
+```sh
+./tools/probe.sh --out out/probes
+```
+
+반복문·바이트 인덱싱·비트 연산의 작은 Gooo 예제는 선언 검사는 통과하지만
+현재 본문 생성에서는 거부됩니다. 스크립트는 정확한 진단과 컴파일러 정보를 저장합니다.
+지원이 추가되면 기존 실패 가정을 조용히 유지하지 않고 검사가 실패하도록 했습니다.
+
+- [언어 분석](docs/language-assessment.md): 실제 지원 범위, API 변환과 제약
+- [다음 이식 로드맵](docs/roadmap.md): 문자열 순회, hex, google/uuid의 선행 조건
+- [기여 방법](CONTRIBUTING.md): 원본 추적과 동작 비교를 포함한 이식 절차
+- [경계 재현](probes/README.md): 컴파일러 개선에 사용할 최소 예제
+
+## 원본과 라이선스
+
+[upstream.json](upstream.json)에 Go **1.27.2**의 커밋
+`022c8636110ebac86a9b88724cda168ed713c21f`, 파일 SHA-256,
+Gooo **0.6.24-dev** 컴파일러 커밋
+`366ee6ef8f9d2b9b57331dfd26b6f908c0289851`을 고정했습니다.
+테스트의 Go 도구 체인에서도 원본 파일 해시가 일치해야 합니다.
+
+BSD 3-Clause 라이선스입니다. Go 원본 저작권과
+[원본 라이선스](third_party/GO-LICENSE), [NOTICE](NOTICE)를 보존합니다.
+기존 [Gooo standard library](https://github.com/kimjooyoon/gooo-standard-library)의
+기초 숫자·논리·문자열 함수와 함께 사용할 수 있도록 별도 패키지 경로를 사용합니다.

@@ -1,0 +1,4 @@
+probe	check_exit	body_codegen_exit	diagnostic
+loop	0	1	unsupported activity statement *ast.ForStmt
+byte-index	0	1	unsupported activity expression *ast.IndexExpr
+bitwise	0	1	unsupported binary operator &

@@ -1,0 +1,9 @@
+// Minimal declaration-valid body that requires a loop.
+package loopprobe
+namespace gooo_ports_probe_loop
+entity Integer id "gooo://std/integer"
+activity Probe(Integer) -> Integer id "gooo://go-ports/probe/loop" computes `
+let total = 0
+for total < input { total = total + 1 }
+return total
+`

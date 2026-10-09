@@ -1,0 +1,41 @@
+// Copyright 2010 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+// Adapted from Go 1.27.2 src/unicode/utf16/utf16.go.
+// The upstream license is reproduced in third_party/GO-LICENSE.
+//
+// Go rune inputs use signed int32 values represented by Gooo Integer (int64).
+// Inputs are never silently truncated. EncodeRune returns one record because
+// Gooo activities have one result. Fields high and low preserve Go's order.
+package utf16
+namespace gooo_ports_unicode_utf16
+
+entity Integer id "gooo://std/integer"
+entity Boolean id "gooo://std/boolean"
+entity SurrogatePair id "gooo://go/unicode/utf16/SurrogatePair" fields {
+    field high id "gooo://go/unicode/utf16/SurrogatePair/high" type integer required one
+    field low id "gooo://go/unicode/utf16/SurrogatePair/low" type integer required one
+}
+
+activity IsSurrogate(Integer) -> Boolean id "gooo://go/unicode/utf16/IsSurrogate" computes `return input >= 55296 && input < 57344`
+
+// Guarded non-negative operands make multiplication/addition equivalent to
+// the upstream shift/bitwise-or expression without requiring bit operators.
+activity DecodeRune(Integer, Integer) -> Integer id "gooo://go/unicode/utf16/DecodeRune" computes `if input0 >= 55296 && input0 < 56320 && input1 >= 56320 && input1 < 57344 {
+    return (input0 - 55296) * 1024 + (input1 - 56320) + 65536
+}
+return 65533`
+
+// Within the guarded scalar range, division and remainder by 1024 preserve
+// the two ten-bit components of the upstream shift/mask implementation.
+activity EncodeRune(Integer) -> SurrogatePair id "gooo://go/unicode/utf16/EncodeRune" computes `if input < 65536 || input > 1114111 {
+    return SurrogatePair{high: 65533, low: 65533}
+}
+let value = input - 65536
+return SurrogatePair{high: 55296 + value / 1024, low: 56320 + value % 1024}`
+
+activity RuneLen(Integer) -> Integer id "gooo://go/unicode/utf16/RuneLen" computes `if (input >= 0 && input < 55296) || (input >= 57344 && input < 65536) {
+    return 1
+}
+if input >= 65536 && input <= 1114111 { return 2 }
+return -1`

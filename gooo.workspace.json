@@ -1,0 +1,10 @@
+{
+  "schema": "gooo/package-workspace-manifest/v1",
+  "entry": {"package_path": "app/response", "activity": "Describe"},
+  "packages": [
+    {"path": "go/net/http", "sources": ["ports/net/http.gooo"]},
+    {"path": "go/unicode/utf8", "sources": ["ports/unicode/utf8.gooo"]},
+    {"path": "go/unicode/utf16", "sources": ["ports/unicode/utf16.gooo"]},
+    {"path": "app/response", "sources": ["examples/response.gooo"]}
+  ]
+}

@@ -1,0 +1,13 @@
+// Consume the HTTP status text port through an actual Gooo package import.
+package response
+namespace response
+import http "go/net/http"
+entity Integer id "gooo://std/integer"
+entity Response id "gooo://go-ports/examples/response" fields {
+    field code id "gooo://go-ports/examples/response/code" type integer required one
+    field text id "gooo://go-ports/examples/response/text" type string required one
+    field known id "gooo://go-ports/examples/response/known" type boolean required one
+}
+
+activity Describe(Integer) -> Response id "gooo://go-ports/examples/response/describe" computes `let text = http.StatusText(input)
+return Response{code: input, text: text, known: text != ""}`

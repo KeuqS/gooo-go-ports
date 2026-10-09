@@ -1,0 +1,8 @@
+// Minimal declaration-valid body that requires indexing a Text byte.
+package byteindexprobe
+namespace gooo_ports_probe_byte_index
+entity Text id "gooo://std/text"
+entity Integer id "gooo://std/integer"
+activity Probe(Text) -> Integer id "gooo://go-ports/probe/byte-index" computes `
+return int64(input[0])
+`

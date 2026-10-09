@@ -1,0 +1,7 @@
+// Minimal declaration-valid body that requires a bitwise operator.
+package bitwiseprobe
+namespace gooo_ports_probe_bitwise
+entity Integer id "gooo://std/integer"
+activity Probe(Integer) -> Integer id "gooo://go-ports/probe/bitwise" computes `
+return input & 255
+`

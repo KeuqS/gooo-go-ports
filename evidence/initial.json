@@ -1,0 +1,101 @@
+{
+  "cases": 1861,
+  "compiler_revision": "366ee6ef8f9d2b9b57331dfd26b6f908c0289851",
+  "consumer_programs": 1,
+  "go_version": "go1.27.2",
+  "goarch": "arm64",
+  "goos": "darwin",
+  "passed": 1861,
+  "ported_functions": 8,
+  "runs": [
+    {
+      "package": "go/net/http",
+      "activity": "StatusText",
+      "domain": "int64; every integer -10..610 plus 4 outliers",
+      "cases": 625,
+      "batches": 5,
+      "passed": 625,
+      "replay_equal": true
+    },
+    {
+      "package": "go/unicode/utf8",
+      "activity": "ValidRune",
+      "domain": "int32 rune values; boundary corpus + deterministic PCG samples (17,29)",
+      "cases": 162,
+      "batches": 2,
+      "passed": 162,
+      "replay_equal": true
+    },
+    {
+      "package": "go/unicode/utf8",
+      "activity": "RuneLen",
+      "domain": "int32 rune values; boundary corpus + deterministic PCG samples (17,29)",
+      "cases": 162,
+      "batches": 2,
+      "passed": 162,
+      "replay_equal": true
+    },
+    {
+      "package": "go/unicode/utf8",
+      "activity": "RuneStart",
+      "domain": "all 256 byte values; this does not validate a complete UTF-8 sequence",
+      "cases": 256,
+      "batches": 2,
+      "passed": 256,
+      "replay_equal": true
+    },
+    {
+      "package": "go/unicode/utf16",
+      "activity": "IsSurrogate",
+      "domain": "int32 rune values; boundary corpus + deterministic PCG samples (17,29)",
+      "cases": 162,
+      "batches": 2,
+      "passed": 162,
+      "replay_equal": true
+    },
+    {
+      "package": "go/unicode/utf16",
+      "activity": "RuneLen",
+      "domain": "int32 rune values; boundary corpus + deterministic PCG samples (17,29)",
+      "cases": 162,
+      "batches": 2,
+      "passed": 162,
+      "replay_equal": true
+    },
+    {
+      "package": "go/unicode/utf16",
+      "activity": "EncodeRune",
+      "domain": "int32 rune values; boundary corpus + deterministic PCG samples (17,29)",
+      "cases": 162,
+      "batches": 2,
+      "passed": 162,
+      "replay_equal": true
+    },
+    {
+      "package": "go/unicode/utf16",
+      "activity": "DecodeRune",
+      "domain": "int32 rune pairs; boundary Cartesian grid and 64 valid surrogate pairs",
+      "cases": 164,
+      "batches": 2,
+      "passed": 164,
+      "replay_equal": true
+    },
+    {
+      "package": "app/response",
+      "activity": "Describe",
+      "domain": "importing consumer; known and unknown HTTP status codes",
+      "cases": 6,
+      "batches": 1,
+      "passed": 6,
+      "replay_equal": true
+    }
+  ],
+  "schema": "gooo/go-ports-differential/v1",
+  "scope": "Finite differential observations against pinned Go source, plus identical saved replay. RuneStart covers its entire byte domain; no claim of exhaustive equivalence for other domains or whole-package compatibility.",
+  "source_sha256": {
+    "examples/response.gooo": "c86eda08379d1cdbcd851c9399ebc13287ad04013f93f6a10175ddce0d827155",
+    "ports/net/http.gooo": "6245657e704a1fe249a45c8cb6040da54c5507188938db3c1bbded24a55592b2",
+    "ports/unicode/utf16.gooo": "885bc4b92c7a820c91429b4ddefe959ef06118092abff488e2700a43c2641e1b",
+    "ports/unicode/utf8.gooo": "def90e079bc265bfd6da7982115a07343e7e7726dee694a4332c44189f3004a2"
+  }
+}

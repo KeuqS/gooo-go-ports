@@ -1,0 +1,64 @@
+{
+  "schema": "gooo/workspace-body-execution-receipt/v1",
+  "decision": "PASS",
+  "manifest_digest": "sha256:69aedff9ebdaa599d69b36192a17ce096b24f3d89818fd7719a43bfb2571ac5b",
+  "cases_digest": "sha256:d16fd4417a0178fa61ef820c1f65e1d36abd2a79c0a5ec140755ea2c3c2d8882",
+  "result": {
+    "program": {
+      "entry": {
+        "package_path": "go/unicode/utf16",
+        "activity": "DecodeRune",
+        "lowered_name": "GoooPackage3ActivityDecodeRune"
+      }
+    },
+    "composition": {
+      "generated_sha256": "sha256:acdaa128e0b60166e814772090e8898cb5ecc413bc841d6c95c4a4b97be2d2c2",
+      "steps": [
+        {
+          "generation": {
+            "report": {
+              "activity_id": "gooo://go/unicode/utf16/DecodeRune"
+            }
+          }
+        }
+      ]
+    },
+    "runtime": {
+      "schema": "gooo/body-composition-runtime/v1",
+      "stage": "COMPLETE",
+      "producer_source_sha": "366ee6ef8f9d2b9b57331dfd26b6f908c0289851",
+      "go_version": "go version go1.27.2 darwin/arm64",
+      "generated_sha256": "sha256:acdaa128e0b60166e814772090e8898cb5ecc413bc841d6c95c4a4b97be2d2c2",
+      "model_calls": 0,
+      "finite_passed": 1,
+      "finite_total": 1,
+      "projection_replayed": true,
+      "runtime_replayed": true,
+      "traces": [
+        {
+          "case_index": 0,
+          "deliveries": [
+            {
+              "activity_id": "gooo://go/unicode/utf16/DecodeRune",
+              "inputs": [
+                {
+                  "port": "input0",
+                  "entity_id": "gooo://std/integer",
+                  "value": -1
+                },
+                {
+                  "port": "input1",
+                  "entity_id": "gooo://std/integer",
+                  "value": -1
+                }
+              ],
+              "actual": 65533,
+              "expected": 65533,
+              "passed": true
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
