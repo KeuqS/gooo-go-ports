@@ -12,7 +12,8 @@ same shell, and stop if a command fails.
 
 ## Get a fixed source version and build its compiler
 
-This guide uses ports commit `f618012e973ad5bcfb8b14f7baa72462f6629191` and its
+This guide uses [experimental release v0.1.0-preview.2](https://github.com/kimjooyoon/gooo-go-ports/releases/tag/v0.1.0-preview.2),
+ports commit `7bd5b9fd0191fba40946700fcdf73ad76a7c79c4`, and its
 compiler pin `366ee6ef8f9d2b9b57331dfd26b6f908c0289851`. The compiler is built from
 that clean source checkout. A moving branch or the `0.6.24-dev` version label
 alone does not identify this combination.
@@ -24,9 +25,9 @@ test "$(go env GOVERSION)" = go1.27.2
 mkdir gooo-go-ports-source
 git -C gooo-go-ports-source init
 git -C gooo-go-ports-source remote add origin https://github.com/kimjooyoon/gooo-go-ports.git
-git -C gooo-go-ports-source fetch --depth=1 origin f618012e973ad5bcfb8b14f7baa72462f6629191
+git -C gooo-go-ports-source fetch --depth=1 origin 7bd5b9fd0191fba40946700fcdf73ad76a7c79c4
 git -C gooo-go-ports-source checkout --detach FETCH_HEAD
-test "$(git -C gooo-go-ports-source rev-parse HEAD)" = f618012e973ad5bcfb8b14f7baa72462f6629191
+test "$(git -C gooo-go-ports-source rev-parse HEAD)" = 7bd5b9fd0191fba40946700fcdf73ad76a7c79c4
 ./gooo-go-ports-source/tools/bootstrap.sh
 ```
 
@@ -48,7 +49,7 @@ cp ../gooo-go-ports-source/ports/unicode/utf8.gooo vendor/gooo-go-ports/ports/un
 cp ../gooo-go-ports-source/LICENSE ../gooo-go-ports-source/NOTICE \
   ../gooo-go-ports-source/upstream.json vendor/gooo-go-ports/
 cp ../gooo-go-ports-source/third_party/GO-LICENSE vendor/gooo-go-ports/third_party/
-printf '%s\n' f618012e973ad5bcfb8b14f7baa72462f6629191 > vendor/gooo-go-ports/REVISION
+printf '%s\n' 7bd5b9fd0191fba40946700fcdf73ad76a7c79c4 > vendor/gooo-go-ports/REVISION
 cmp ../gooo-go-ports-source/ports/unicode/utf8.gooo vendor/gooo-go-ports/ports/unicode/utf8.gooo
 ```
 
@@ -162,7 +163,7 @@ mkdir out
 Input-only records report `decision: "OBSERVED"`. They contain actual values at
 `result.runtime.traces[].deliveries[].actual`; they do not claim to have passed
 Go-reference comparisons. These seven inputs are a usage example and do not add
-to the pinned snapshot's 5,510-case differential verification count. The replay's
+to the pinned snapshot's 14,093-case differential verification count. The replay's
 `replayed_from_sha256` identifies the original execution receipt bytes.
 
 You can edit `inputs.json` and replay the saved program on the new inputs. If you
