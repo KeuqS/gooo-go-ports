@@ -10,6 +10,7 @@ import utf8 "go/unicode/utf8"
 import utf16 "go/unicode/utf16"
 import bits "go/math/bits"
 import color "go/image/color"
+import time "go/time"
 
 entity Text id "gooo://std/text"
 entity Integer id "gooo://std/integer"
@@ -64,6 +65,12 @@ if input0 == "bits.Reverse8" {
 }
 if input0 == "bits.RotateLeft8" {
     return Reply{text: "", flag: false, first: bits.RotateLeft8(input1, input2), second: 0, third: 0, fourth: 0}
+}
+if input0 == "time.Duration.Round" {
+    return Reply{text: "", flag: false, first: time.DurationRound(input1, input2), second: 0, third: 0, fourth: 0}
+}
+if input0 == "time.Duration.Truncate" {
+    return Reply{text: "", flag: false, first: time.DurationTruncate(input1, input2), second: 0, third: 0, fourth: 0}
 }
 if input0 == "color.RGBToCMYK" {
     let converted = color.RGBToCMYK(input1, input2, input3)

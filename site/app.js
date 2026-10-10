@@ -17,10 +17,17 @@
     'bits.OnesCount8': { scenario: 'bytes', path: 'go/math/bits', source: 'ports/math/bits.gooo', label: 'Byte value', domain: 'byte · 0…255', example: '170', description: 'Count the one bits in the binary representation of a byte.', help: 'For example, decimal 170 is binary 10101010 and contains four one bits.' },
     'bits.Reverse8': { scenario: 'bytes', path: 'go/math/bits', source: 'ports/math/bits.gooo', label: 'Byte value', domain: 'byte · 0…255', example: '170', description: 'Reverse the order of all eight bits in a byte.', help: 'Try decimal 170: binary 10101010 becomes 01010101.' },
     'bits.RotateLeft8': { scenario: 'bytes', path: 'go/math/bits', source: 'ports/math/bits.gooo', label: 'Byte value', domain: 'byte and int64 rotation', example: '129', second: '1', secondLabel: 'Rotation count', output: 'integer', description: 'Rotate all eight bits in a byte, wrapping bits around the ends.', help: 'Positive counts rotate left; negative counts rotate right. The pattern repeats every 8 steps. The full signed 64-bit count is preserved exactly. Execution time may vary with the input.' },
+    'time.Duration.Round': { scenario: 'duration', path: 'go/time', source: 'ports/time/duration.gooo', label: 'Duration (ns)', domain: 'two int64 durations · ns', example: '1500000000', second: '1000000000', secondLabel: 'Multiple (ns)', output: 'integer', description: 'Round a duration to the nearest multiple, with ties away from zero.', help: 'Both inputs are signed 64-bit integers in nanoseconds: 1 second = 1000000000 ns. A multiple of 0 or less returns the original duration. Overflow saturates at the signed 64-bit limit.' },
+    'time.Duration.Truncate': { scenario: 'duration', path: 'go/time', source: 'ports/time/duration.gooo', label: 'Duration (ns)', domain: 'two int64 durations · ns', example: '1500000000', second: '1000000000', secondLabel: 'Multiple (ns)', output: 'integer', description: 'Truncate a duration toward zero to a multiple of the chosen unit.', help: 'Both inputs are signed 64-bit integers in nanoseconds: 1 second = 1000000000 ns. A multiple of 0 or less returns the original duration. Negative durations also truncate toward zero.' },
     'color.RGBToCMYK': { scenario: 'colors', path: 'go/image/color', source: 'ports/image/color.gooo', labels: ['Red', 'Green', 'Blue'], examples: ['64', '128', '192'], output: 'cmyk', domain: 'byte channels · 0…255', description: 'Convert red, green, and blue channels to cyan, magenta, yellow, and black.', help: 'Each channel is a decimal integer from 0 to 255. Integer rounding can change a color on a round trip. This conversion does not use printer or ICC profiles.' },
     'color.CMYKToRGB': { scenario: 'colors', path: 'go/image/color', source: 'ports/image/color.gooo', labels: ['Cyan', 'Magenta', 'Yellow', 'Black'], examples: ['170', '85', '0', '63'], output: 'rgb', domain: 'byte channels · 0…255', description: 'Convert cyan, magenta, yellow, and black channels to red, green, and blue.', help: 'Each channel is a decimal integer from 0 to 255. Integer rounding can change a color on a round trip. This conversion does not use printer or ICC profiles.' }
   };
-  const scenarios = { http: 'http.StatusText', unicode: 'utf16.EncodeRune', bytes: 'bits.Reverse8', colors: 'color.RGBToCMYK' };
+  const durationPresets = {
+    positive: ['1500000000', '1000000000'], negative: ['-1500000000', '1000000000'],
+    upper: ['9223372036854775807', '10'], lower: ['-9223372036854775808', '10'],
+    precise: ['9007199254740993', '2'], unchanged: ['-9223372036854775808', '0']
+  };
+  const scenarios = { http: 'http.StatusText', unicode: 'utf16.EncodeRune', bytes: 'bits.Reverse8', colors: 'color.RGBToCMYK', duration: 'time.Duration.Round' };
   const inputNames = ['first', 'second', 'third', 'fourth'];
   const outputChannels = { rgb: ['red', 'green', 'blue'], cmyk: ['cyan', 'magenta', 'yellow', 'black'] };
   let ready = false;
@@ -148,10 +155,14 @@
       $(`${field}-label`).textContent = labels[i] || '';
       $(`${field}-field`).hidden = i >= labels.length;
       $(`${field}-input`).disabled = i >= labels.length;
+      $(`${field}-input`).inputMode = operation.scenario === 'duration' ? 'text' : 'numeric';
       if (resetInput) $(`${field}-input`).value = examples[i] || '0';
     });
     $('input-fields').classList.toggle('color-inputs', !!operation.labels);
     $('input-fields').classList.toggle('rotation-inputs', name === 'bits.RotateLeft8');
+    $('input-fields').classList.toggle('duration-inputs', operation.scenario === 'duration');
+    $('duration-presets-field').hidden = operation.scenario !== 'duration';
+    $('duration-presets').value = '';
     $('input-domain').replaceChildren(document.createTextNode('Input domain '));
     const domain = document.createElement('code');
     domain.textContent = operation.domain;
@@ -160,8 +171,8 @@
       ? 'Byte: 0 to 255. Rotation count: -9223372036854775808 to 9223372036854775807.'
       : operation.domain.startsWith('byte')
       ? '0 to 255; values outside this range are rejected.'
-      : name === 'http.StatusText'
-        ? '-9223372036854775808 to 9223372036854775807'
+      : name === 'http.StatusText' || operation.scenario === 'duration'
+        ? '-9223372036854775808 to 9223372036854775807 for each input'
         : '-2147483648 to 2147483647 for each input';
     $('input-help').textContent = operation.help;
     $('package-path').textContent = operation.path;
@@ -223,6 +234,11 @@
         (!/^(?:0|[1-9][0-9]{0,2})$/.test(result.output.value) || BigInt(result.output.value) > 255n)) {
       throw new Error('The runtime returned an invalid byte.');
     }
+    if (result.ok && operations[operation]?.scenario === 'duration' &&
+        (!/^(?:0|[1-9][0-9]*|-[1-9][0-9]*)$/.test(result.output.value) ||
+          BigInt(result.output.value) < -9223372036854775808n || BigInt(result.output.value) > 9223372036854775807n)) {
+      throw new Error('The runtime returned an invalid duration.');
+    }
     return result;
   }
 
@@ -248,7 +264,7 @@
     area.replaceChildren();
     const type = document.createElement('p');
     type.className = 'result-type';
-    type.textContent = output.type === 'pair' ? 'SURROGATE PAIR' : output.type;
+    type.textContent = operations[result.operation]?.scenario === 'duration' ? 'NANOSECONDS' : output.type === 'pair' ? 'SURROGATE PAIR' : output.type;
     area.append(type);
     if (output.type === 'pair' || Object.hasOwn(outputChannels, output.type)) {
       const pair = document.createElement('div');
@@ -266,7 +282,7 @@
       area.append(pair);
     } else {
       const value = document.createElement('p');
-      value.className = `result-value${output.type === 'text' ? ' text-result' : ''}${output.value === true ? ' boolean-true' : ''}`;
+      value.className = `result-value${output.type === 'text' ? ' text-result' : ''}${operations[result.operation]?.scenario === 'duration' ? ' duration-result' : ''}${output.value === true ? ' boolean-true' : ''}`;
       value.textContent = output.value === '' ? '""' : String(output.value);
       area.append(value);
     }
@@ -361,6 +377,14 @@
     } catch (error) { shareNotice(`This input cannot be shared. ${error.message}`, true); }
   });
 
+  $('duration-presets').addEventListener('change', () => {
+    const inputs = durationPresets[$('duration-presets').value];
+    if (!inputs || operations[$('operation').value].scenario !== 'duration') return;
+    forgetSharedInput();
+    $('first-input').value = inputs[0];
+    $('second-input').value = inputs[1];
+    clearResult();
+  });
   $('operation').addEventListener('change', () => { forgetSharedInput(); selectOperation($('operation').value); });
   inputNames.forEach(name => $(`${name}-input`).addEventListener('input', () => { forgetSharedInput(); clearResult(); }));
   document.querySelectorAll('[data-scenario]').forEach((button) => button.addEventListener('click', () => {

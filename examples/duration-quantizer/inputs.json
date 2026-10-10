@@ -1,0 +1,61 @@
+{
+  "schema": "gooo/body-composition-inputs/v1",
+  "inputs": [
+    {
+      "app/duration-quantizer:Inspect.input0": 1500000000,
+      "app/duration-quantizer:Inspect.input1": 1000000000
+    },
+    {
+      "app/duration-quantizer:Inspect.input0": -1500000000,
+      "app/duration-quantizer:Inspect.input1": 1000000000
+    },
+    {
+      "app/duration-quantizer:Inspect.input0": 1300000000,
+      "app/duration-quantizer:Inspect.input1": 1000000000
+    },
+    {
+      "app/duration-quantizer:Inspect.input0": -1300000000,
+      "app/duration-quantizer:Inspect.input1": 1000000000
+    },
+    {
+      "app/duration-quantizer:Inspect.input0": 2,
+      "app/duration-quantizer:Inspect.input1": 5
+    },
+    {
+      "app/duration-quantizer:Inspect.input0": 3,
+      "app/duration-quantizer:Inspect.input1": 5
+    },
+    {
+      "app/duration-quantizer:Inspect.input0": 9000000000000000000,
+      "app/duration-quantizer:Inspect.input1": 5000000000000000000
+    },
+    {
+      "app/duration-quantizer:Inspect.input0": -9000000000000000000,
+      "app/duration-quantizer:Inspect.input1": 5000000000000000000
+    },
+    {
+      "app/duration-quantizer:Inspect.input0": -9223372036854775808,
+      "app/duration-quantizer:Inspect.input1": 9223372036854775807
+    },
+    {
+      "app/duration-quantizer:Inspect.input0": 9007199254740992,
+      "app/duration-quantizer:Inspect.input1": 3
+    },
+    {
+      "app/duration-quantizer:Inspect.input0": 9007199254740993,
+      "app/duration-quantizer:Inspect.input1": 3
+    },
+    {
+      "app/duration-quantizer:Inspect.input0": -9223372036854775808,
+      "app/duration-quantizer:Inspect.input1": 0
+    },
+    {
+      "app/duration-quantizer:Inspect.input0": 9223372036854775807,
+      "app/duration-quantizer:Inspect.input1": -1
+    },
+    {
+      "app/duration-quantizer:Inspect.input0": 0,
+      "app/duration-quantizer:Inspect.input1": 1
+    }
+  ]
+}

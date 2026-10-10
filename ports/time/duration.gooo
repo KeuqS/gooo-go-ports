@@ -1,0 +1,37 @@
+// Copyright 2009 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+// Adapted from Go 1.27.2 src/time/time.go.
+// The upstream license is reproduced in third_party/GO-LICENSE.
+//
+// Go Duration is signed int64 nanoseconds, represented exactly by Integer.
+// The Go method receiver is the first argument; the quantum is the second.
+// Every signed int64 pair is accepted. A nonpositive quantum returns the
+// original duration unchanged, as in Go; it is not an extension or error.
+package time
+namespace gooo_ports_time
+entity Integer id "gooo://std/integer"
+
+// Round to the nearest quantum, with halfway values away from zero.
+// Saturate at either int64 bound if the rounded multiple cannot fit.
+// After the quantum guard, abs(remainder) is smaller than input1 and can
+// never be MinInt64. Compare r with m-r instead of overflowing r+r.
+// Check the final adjustment before arithmetic, preserving Go's saturation
+// without relying on intermediate wraparound or a uint64 conversion.
+activity DurationRound(Integer, Integer) -> Integer id "gooo://go/time/Duration/Round" computes `if input1 <= 0 { return input0 }
+let remainder = input0 % input1
+if input0 < 0 {
+    remainder = -remainder
+    if remainder < input1 - remainder { return input0 + remainder }
+    let distance = input1 - remainder
+    if input0 < -9223372036854775808 + distance { return -9223372036854775808 }
+    return input0 - distance
+}
+if remainder < input1 - remainder { return input0 - remainder }
+let distance = input1 - remainder
+if input0 > 9223372036854775807 - distance { return 9223372036854775807 }
+return input0 + distance`
+
+// Removing the signed remainder moves toward zero and cannot overflow.
+activity DurationTruncate(Integer, Integer) -> Integer id "gooo://go/time/Duration/Truncate" computes `if input1 <= 0 { return input0 }
+return input0 - input0 % input1`

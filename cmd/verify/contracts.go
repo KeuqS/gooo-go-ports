@@ -19,6 +19,9 @@ type activityContract struct {
 func nativeActivityContracts() map[string]activityContract {
 	i := integerEntity
 	return map[string]activityContract{
+		"go/time:DurationRound":               {"ports/time/duration.gooo", "gooo://go/time/Duration/Round", []string{i, i}},
+		"go/time:DurationTruncate":            {"ports/time/duration.gooo", "gooo://go/time/Duration/Truncate", []string{i, i}},
+		"app/duration-quantizer:Inspect":      {"examples/duration-quantizer/main.gooo", "gooo://go-ports/examples/duration-quantizer/inspect", []string{i, i}},
 		"go/net/http:StatusText":              {"ports/net/http.gooo", "gooo://go/net/http/status-text", []string{i}},
 		"go/unicode/utf8:ValidRune":           {"ports/unicode/utf8.gooo", "gooo://go/unicode/utf8/ValidRune", []string{i}},
 		"go/unicode/utf8:RuneLen":             {"ports/unicode/utf8.gooo", "gooo://go/unicode/utf8/RuneLen", []string{i}},

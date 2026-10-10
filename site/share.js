@@ -8,6 +8,7 @@
   const prefix = '#gooo-share?';
   const domains = Object.freeze({
     'http.StatusText': 'int64',
+    'time.Duration.Round': 'duration', 'time.Duration.Truncate': 'duration',
     'utf8.ValidRune': 'rune', 'utf8.RuneLen': 'rune', 'utf8.RuneStart': 'byte',
     'utf16.IsSurrogate': 'rune', 'utf16.RuneLen': 'rune',
     'utf16.EncodeRune': 'rune', 'utf16.DecodeRune': 'pair',
@@ -30,14 +31,14 @@
     const domain = domains[operation];
     for (const [index, value] of inputs.entries()) {
       const byte = ['byte', 'rgb', 'cmyk'].includes(domain) || (domain === 'rotation' && index === 0);
-      const int64 = domain === 'int64' || (domain === 'rotation' && index === 1);
+      const int64 = domain === 'int64' || domain === 'duration' || (domain === 'rotation' && index === 1);
       if (typeof value !== 'string' || value.length > 20 || !decimal.test(value)) throw new Error('Use decimal integers without spaces, a plus sign, or leading zeros.');
       const integer = BigInt(value);
       const minimum = int64 ? -9223372036854775808n : byte ? 0n : -2147483648n;
       const maximum = int64 ? 9223372036854775807n : byte ? 255n : 2147483647n;
       if (integer < minimum || integer > maximum) throw new Error('An input is outside this function’s accepted range.');
     }
-    if (!['pair', 'rgb', 'cmyk', 'rotation'].includes(domain) && inputs[1] !== '0') throw new Error('This function accepts one input; its unused second value must be 0.');
+    if (!['pair', 'rgb', 'cmyk', 'rotation', 'duration'].includes(domain) && inputs[1] !== '0') throw new Error('This function accepts one input; its unused second value must be 0.');
   }
 
   function validateState(state) {

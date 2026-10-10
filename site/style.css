@@ -1203,12 +1203,14 @@ footer {
   }
 }
 
-/* A signed 64-bit rotation count needs a full row even on a narrow screen. */
+/* Signed 64-bit inputs need a full row even on a narrow screen. */
+.input-fields.duration-inputs,
 .input-fields.rotation-inputs {
   display: grid;
   grid-template-columns: minmax(0, 1fr)
 }
 
+.duration-inputs input,
 .rotation-inputs #second-input {
   font-size: clamp(14px, 4.2vw, 19px);
   letter-spacing: -.3px
@@ -1233,4 +1235,20 @@ footer {
   font-size: 20px;
   letter-spacing: .15em;
   color: var(--ink)
+}
+
+.duration-presets {
+  margin: 18px 0
+}
+
+.duration-presets select {
+  width: 100%;
+  min-height: 44px;
+  font-size: 13px
+}
+
+.result-value.duration-result {
+  font-size: clamp(19px, 4.8vw, 29px);
+  letter-spacing: -.4px;
+  overflow-wrap: anywhere
 }

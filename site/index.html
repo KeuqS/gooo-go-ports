@@ -46,8 +46,9 @@
             <button type="button" class="scenario" data-scenario="unicode" aria-pressed="false"><span class="scenario-number">02</span> Unicode</button>
             <button type="button" class="scenario" data-scenario="bytes" aria-pressed="false"><span class="scenario-number">03</span> Bytes</button>
             <button type="button" class="scenario" data-scenario="colors" aria-pressed="false"><span class="scenario-number">04</span> Colors</button>
+            <button type="button" class="scenario" data-scenario="duration" aria-pressed="false"><span class="scenario-number">05</span> Durations</button>
           </div>
-          <span class="function-count">16 functions · actual compiled code</span>
+          <span class="function-count">18 functions · actual compiled code</span>
         </div>
 
         <div class="workbench-body">
@@ -79,6 +80,10 @@
                   <option value="bits.Reverse8">bits.Reverse8</option>
                   <option value="bits.RotateLeft8">bits.RotateLeft8</option>
                 </optgroup>
+                <optgroup label="Durations">
+                  <option value="time.Duration.Round">time.Duration.Round</option>
+                  <option value="time.Duration.Truncate">time.Duration.Truncate</option>
+                </optgroup>
                 <optgroup label="Colors">
                   <option value="color.RGBToCMYK">color.RGBToCMYK</option>
                   <option value="color.CMYKToRGB">color.CMYKToRGB</option>
@@ -87,6 +92,18 @@
             </div>
             <p id="function-description" class="field-description">Look up the standard description of an HTTP status code.</p>
 
+            <div id="duration-presets-field" class="duration-presets" hidden>
+              <label for="duration-presets">Try a boundary</label>
+              <select id="duration-presets">
+                <option value="">Choose an input pair…</option>
+                <option value="positive">Positive tie · 1.5 s to 1 s</option>
+                <option value="negative">Negative tie · −1.5 s to 1 s</option>
+                <option value="upper">Maximum int64 · multiple 10 ns</option>
+                <option value="lower">Minimum int64 · multiple 10 ns</option>
+                <option value="precise">Exact large integer · multiple 2 ns</option>
+                <option value="unchanged">Zero multiple · original duration</option>
+              </select>
+            </div>
             <div id="input-fields" class="input-fields">
               <div id="first-field" class="input-field">
                 <label id="first-label" for="first-input">Status code</label>

@@ -45,7 +45,7 @@ function app(fragment = '', clipboard = async () => {}, runtimeReply) {
   const elements = new Map();
   const get = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
   get('operation').value = 'http.StatusText'; get('first-input').value = '404'; get('second-input').value = '56832';
-  const scenarioButtons = ['http', 'unicode', 'bytes', 'colors'].map(scenario => { const e = new Element(); e.dataset.scenario = scenario; return e; });
+  const scenarioButtons = ['http', 'unicode', 'bytes', 'colors', 'duration'].map(scenario => { const e = new Element(); e.dataset.scenario = scenario; return e; });
   const events = new Map(), calls = [], copied = [];
   const metaGate = deferred(), wasmGate = deferred(), fixtureGate = deferred();
   let url = new URL('https://example.test/demo/' + fragment);
@@ -388,5 +388,70 @@ test('rotation binary preview rejects malformed and out-of-byte runtime results'
     assert.equal(a.get('result-badge').textContent, 'ERROR');
     assert.equal(a.get('raw-result').hidden, true);
     assert.ok(!a.get('result-content').children.some(child => child.className === 'bit-preview'));
+  }
+});
+
+
+test('duration UI preserves exact inputs, reports nanoseconds and only shows the returned integer', async () => {
+  for (const operation of ['time.Duration.Round', 'time.Duration.Truncate']) {
+    for (const inputs of [['-9223372036854775808', '9223372036854775807'], ['9007199254740993', '2'], ['-9007199254740993', '-1']]) {
+      const a = app(link({ operation, inputs }), undefined,
+        (operation, inputs) => ({ ok: true, operation, inputs, output: { type: 'integer', value: '217' } }));
+      await a.ready();
+      assert.deepEqual(a.calls, [[operation, ...inputs]]);
+      assert.equal(a.get('first-label').textContent, 'Duration (ns)');
+      assert.equal(a.get('first-input').inputMode, 'text');
+      assert.equal(a.get('second-input').inputMode, 'text');
+      assert.equal(a.get('second-label').textContent, 'Multiple (ns)');
+      assert.equal(a.get('second-field').hidden, false);
+      assert.equal(a.get('second-input').disabled, false);
+      assert.equal(a.get('duration-presets-field').hidden, false);
+      assert.equal(a.get('result-content').children[0].textContent, 'NANOSECONDS');
+      assert.equal(a.get('result-content').children[1].textContent, '217');
+      await a.get('share-button').emit('click');
+      assert.deepEqual(share.parse(new URL(a.copied[0]).hash).inputs, inputs);
+    }
+  }
+});
+
+test('duration presets replace both input strings and cancel pending shared auto-run', async () => {
+  const presets = { positive: ['1500000000', '1000000000'], negative: ['-1500000000', '1000000000'],
+    upper: ['9223372036854775807', '10'], lower: ['-9223372036854775808', '10'],
+    precise: ['9007199254740993', '2'], unchanged: ['-9223372036854775808', '0'] };
+  for (const [preset, inputs] of Object.entries(presets)) {
+    const a = app(link({ operation: 'time.Duration.Truncate', inputs: ['1', '1'] }), undefined,
+      (operation, inputs) => ({ ok: true, operation, inputs, output: { type: 'integer', value: '217' } }));
+    a.get('duration-presets').value = preset; a.get('duration-presets').emit('change');
+    await a.ready();
+    assert.equal(a.calls.length, 0);
+    assert.equal(a.get('first-input').value, inputs[0]);
+    assert.equal(a.get('second-input').value, inputs[1]);
+    a.get('run-form').emit('submit');
+    assert.deepEqual(a.calls, [['time.Duration.Truncate', ...inputs]]);
+  }
+});
+
+test('duration inputs reject unsafe or noncanonical values before runtime execution', async () => {
+  const a = app(); await a.ready();
+  a.scenarioButtons[4].emit('click');
+  assert.equal(a.get('operation').value, 'time.Duration.Round');
+  for (const position of [0, 1]) {
+    for (const value of ['9223372036854775808', '-9223372036854775809', '01', '-0', '1e2']) {
+      const inputs = ['9007199254740993', '2']; inputs[position] = value;
+      a.get('first-input').value = inputs[0]; a.get('second-input').value = inputs[1];
+      a.get('run-form').emit('submit');
+      assert.equal(a.get('result-badge').textContent, 'ERROR');
+    }
+  }
+  assert.equal(a.calls.length, 0);
+});
+
+test('duration UI rejects malformed runtime results instead of displaying an imprecise duration', async () => {
+  for (const value of ['9223372036854775808', '-9223372036854775809', '01', '-0', '1.0', '1e2']) {
+    const a = app(link({ operation: 'time.Duration.Round', inputs: ['1', '2'] }), undefined,
+      (operation, inputs) => ({ ok: true, operation, inputs, output: { type: 'integer', value } }));
+    await a.ready();
+    assert.equal(a.get('result-badge').textContent, 'ERROR');
+    assert.equal(a.get('raw-result').hidden, true);
   }
 });

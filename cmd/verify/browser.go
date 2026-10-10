@@ -150,6 +150,27 @@ func makeBrowserFixtures(suites []suite, lock upstream) (browserFixtures, error)
 		result.Cases = append(result.Cases, row)
 	}
 	result.Rejections = append(result.Rejections, rotationBrowserRejections()...)
+	durations, err := durationCorpus()
+	if err != nil {
+		return browserFixtures{}, err
+	}
+	for _, suite := range durations.Suites {
+		if suite.Package != "go/time" {
+			continue
+		}
+		operation, ok := map[string]string{"DurationRound": "time.Duration.Round", "DurationTruncate": "time.Duration.Truncate"}[suite.Activity]
+		if !ok {
+			return browserFixtures{}, fmt.Errorf("unknown duration fixture activity %s", suite.Activity)
+		}
+		for _, c := range suite.Cases {
+			row, err := browserRow(operation, c)
+			if err != nil {
+				return browserFixtures{}, err
+			}
+			result.Cases = append(result.Cases, row)
+		}
+	}
+	result.Rejections = append(result.Rejections, durationBrowserRejections()...)
 	return result, nil
 }
 
@@ -157,7 +178,7 @@ func browserRow(operation string, c testCase) (browserCase, error) {
 	row := browserCase{Operation: operation, Inputs: []string{"0", "0"}}
 	arity := 1
 	switch operation {
-	case "utf16.DecodeRune", "bits.RotateLeft8":
+	case "utf16.DecodeRune", "bits.RotateLeft8", "time.Duration.Round", "time.Duration.Truncate":
 		arity = 2
 	case "color.RGBToCMYK":
 		arity = 3
@@ -238,7 +259,7 @@ func browserRow(operation string, c testCase) (browserCase, error) {
 			return browserCase{}, err
 		}
 		row.Expected = browserOutput{"pair", map[string]string{"high": high, "low": low}}
-	case "utf8.RuneLen", "utf16.RuneLen", "utf16.DecodeRune", "bits.Len8", "bits.LeadingZeros8", "bits.TrailingZeros8", "bits.OnesCount8", "bits.Reverse8", "bits.RotateLeft8":
+	case "utf8.RuneLen", "utf16.RuneLen", "utf16.DecodeRune", "bits.Len8", "bits.LeadingZeros8", "bits.TrailingZeros8", "bits.OnesCount8", "bits.Reverse8", "bits.RotateLeft8", "time.Duration.Round", "time.Duration.Truncate":
 		value, err := browserInteger(expected)
 		if err != nil {
 			return browserCase{}, err
@@ -335,6 +356,32 @@ func rotationBrowserRejections() []browserRejection {
 			inputs[i] = "0"
 		}
 		result = append(result, browserRejection{"bits.RotateLeft8", inputs})
+	}
+	return result
+}
+
+// Both duration arguments accept all int64 values; only syntax, range and arity
+// failures are bridge rejections. Nonpositive multiples are valid Go inputs.
+func durationBrowserRejections() []browserRejection {
+	var result []browserRejection
+	for _, operation := range []string{"time.Duration.Round", "time.Duration.Truncate"} {
+		for position := 0; position < 2; position++ {
+			for _, raw := range []string{"", " 1", "1 ", "+1", "01", "-0", "1.0", "1e2", "0xff", "NaN", "１２", "9223372036854775808", "-9223372036854775809"} {
+				inputs := []string{"9007199254740993", "2"}
+				inputs[position] = raw
+				result = append(result, browserRejection{operation, inputs})
+			}
+		}
+		for n := 0; n <= 5; n++ {
+			if n == 2 {
+				continue
+			}
+			inputs := make([]string, n)
+			for i := range inputs {
+				inputs[i] = "0"
+			}
+			result = append(result, browserRejection{operation, inputs})
+		}
 	}
 	return result
 }

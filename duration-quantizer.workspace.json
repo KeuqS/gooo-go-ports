@@ -1,0 +1,21 @@
+{
+  "schema": "gooo/package-workspace-manifest/v1",
+  "entry": {
+    "package_path": "app/duration-quantizer",
+    "activity": "Inspect"
+  },
+  "packages": [
+    {
+      "path": "go/time",
+      "sources": [
+        "ports/time/duration.gooo"
+      ]
+    },
+    {
+      "path": "app/duration-quantizer",
+      "sources": [
+        "examples/duration-quantizer/main.gooo"
+      ]
+    }
+  ]
+}

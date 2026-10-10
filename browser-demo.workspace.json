@@ -36,6 +36,12 @@
       ]
     },
     {
+      "path": "go/time",
+      "sources": [
+        "ports/time/duration.gooo"
+      ]
+    },
+    {
       "path": "app/browser-demo",
       "sources": [
         "examples/browser-demo/main.gooo"
