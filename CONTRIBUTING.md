@@ -37,6 +37,7 @@ failures can be reported too. GitHub lets you review the report before submittin
 test -z "$(gofmt -l cmd)"
 go vet ./...
 go test -race ./...
+python3 tools/bootstrap.test.py
 go run ./cmd/verify --out out/contribution
 ./tools/probe.sh --out out/contribution-probes
 ```
