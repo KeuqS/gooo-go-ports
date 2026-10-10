@@ -1,6 +1,8 @@
 # Gooo Go Ports
 
-Go standard-library functions implemented in [Gooo](https://github.com/kimjooyoon/meta-ontology-go),
+[Gooo](https://github.com/kimjooyoon/meta-ontology-go) is an experimental language for
+describing what programs should do and inspecting how they are built and run.
+This independent ecosystem project implements selected Go standard-library functions in Gooo,
 with independent Go reference outputs and saved replay. The current scope is
 16 HTTP, Unicode, 8-bit integer, and color-conversion functions, five native importing examples,
 and an importing browser dispatcher.
