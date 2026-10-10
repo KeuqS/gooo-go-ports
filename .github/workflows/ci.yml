@@ -45,6 +45,7 @@ jobs:
           ./.gooo check ports/unicode/utf16.gooo
           ./.gooo check ports/math/bits.gooo
           ./.gooo check ports/image/color.gooo
+          ./.gooo check ports/time/duration.gooo
           sh tools/probe.sh --out out/probes
       - name: Compare the ports with Go and replay every batch
         run: |
@@ -53,15 +54,16 @@ jobs:
             .schema == "gooo/go-ports-differential/v1" and
             .go_version == "go1.27.2" and
             .compiler_revision == "366ee6ef8f9d2b9b57331dfd26b6f908c0289851" and
-            .ported_functions == 16 and .consumer_programs == 5 and .consumer_activities == 6 and
+            .ported_functions == 18 and .consumer_programs == 6 and .consumer_activities == 7 and
             .legacy_cases == 3147 and .unicode_reference_cases == 334 and .unicode_rejection_cases == 12 and
             .color_port_reference_cases == 1300 and .color_port_rejection_cases == 56 and
             .color_consumer_reference_cases == 637 and .color_consumer_rejection_cases == 24 and
             .rotation_port_reference_cases == 2472 and .rotation_port_rejection_cases == 36 and
             .rotation_consumer_reference_cases == 672 and .rotation_consumer_rejection_cases == 36 and
-            .cases == 8726 and .passed == 8726 and
-            (.runs | length) == 22 and
-            ([.runs[].cases] | add) == 8726 and ([.runs[].batches] | add) == 112 and
+            .duration_port_reference_cases == 3578 and .duration_consumer_reference_cases == 1789 and
+            .cases == 14093 and .passed == 14093 and
+            (.runs | length) == 25 and
+            ([.runs[].cases] | add) == 14093 and ([.runs[].batches] | add) == 168 and
             all(.runs[]; .passed == .cases and .replay_equal == true)
           ' out/ci/summary.json
       - name: Execute and replay the input-only importing example
@@ -195,6 +197,61 @@ jobs:
             ([.[0].result.runtime.traces[].deliveries[] | {input, inputs, actual}] ==
              [.[1].result.runtime.traces[].deliveries[] | {input, inputs, actual}])
           ' out/color-example.json out/color-replay.json
+      - name: Execute and replay the duration quantizer input-only example
+        run: |
+          ./.gooo package execute --json --inputs examples/duration-quantizer/inputs.json \
+            duration-quantizer.workspace.json > out/duration-example.json
+          ./.gooo package replay --json --receipt out/duration-example.json \
+            --inputs examples/duration-quantizer/inputs.json \
+            duration-quantizer.workspace.json > out/duration-replay.json
+          # Preserve int64 nanoseconds while checking input and saved-replay bindings.
+          python3 - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          digest = lambda value: "sha256:" + hashlib.sha256(value).hexdigest()
+          fixture_bytes = Path("examples/duration-quantizer/inputs.json").read_bytes()
+          fixture = json.loads(fixture_bytes)
+          manifest_bytes = Path("duration-quantizer.workspace.json").read_bytes()
+          lock = json.loads(Path("upstream.json").read_bytes())
+          execution_bytes = Path("out/duration-example.json").read_bytes()
+          execution = json.loads(execution_bytes)
+          replay = json.loads(Path("out/duration-replay.json").read_bytes())
+          assert replay["replayed_from_sha256"] == "sha256:" + hashlib.sha256(execution_bytes).hexdigest()
+          assert execution["result"]["composition"]["generated_sha256"] == replay["result"]["composition"]["generated_sha256"]
+          assert replay["result"]["replay"]["model_calls"] == 0
+          results = []
+          for receipt in (execution, replay):
+              runtime = receipt["result"]["runtime"]
+              composition = receipt["result"]["composition"]
+              assert receipt["decision"] == "OBSERVED"
+              assert receipt["schema"] == "gooo/workspace-body-execution-receipt/v1"
+              assert runtime["schema"] == "gooo/body-composition-runtime/v1" and runtime.get("failure") is None
+              assert receipt["inputs_digest"] == digest(fixture_bytes)
+              assert receipt["manifest_digest"] == digest(manifest_bytes)
+              assert composition["stage"] == runtime["stage"] == "COMPLETE"
+              assert composition["generated_sha256"] == runtime["generated_sha256"] == digest(composition["source"].encode())
+              assert runtime["producer_source_sha"] == lock["compiler_revision"]
+              version = runtime["go_version"].split()
+              assert len(version) == 4 and version[:3] == ["go", "version", lock["go_version"]]
+              for step in composition["steps"]:
+                  assert step["generation"]["report"]["compiler_source_sha"] == lock["compiler_revision"]
+              assert runtime["finite_total"] == runtime["finite_passed"] == runtime["model_calls"] == 0
+              assert runtime["projection_replayed"] is True and runtime["runtime_replayed"] is True
+              deliveries = [d for t in runtime["traces"] for d in t["deliveries"]]
+              assert len(deliveries) == len(fixture["inputs"])
+              for supplied, observed in zip(fixture["inputs"], deliveries):
+                  assert observed["activity_id"] == "gooo://go-ports/examples/duration-quantizer/inspect"
+                  assert observed["inputs"] == [
+                      {"port": "input0", "entity_id": "gooo://std/integer", "value": supplied["app/duration-quantizer:Inspect.input0"]},
+                      {"port": "input1", "entity_id": "gooo://std/integer", "value": supplied["app/duration-quantizer:Inspect.input1"]},
+                  ]
+                  assert set(observed["actual"]) == {"rounded", "truncated", "round_adjustment", "truncation_remainder"}
+                  assert all(type(v) is int and -(2**63) <= v < 2**63 for v in observed["actual"].values())
+              results.append([d["actual"] for d in deliveries])
+          assert results[0] == results[1]
+          PY
       - name: Upload execution and diagnostic evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7

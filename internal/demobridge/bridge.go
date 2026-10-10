@@ -34,7 +34,7 @@ func lookup(name string) (operation, bool) {
 		return operation{0, 255, 2, 1, "boolean"}, true
 	case "bits.Len8", "bits.LeadingZeros8", "bits.TrailingZeros8", "bits.OnesCount8", "bits.Reverse8":
 		return operation{0, 255, 2, 1, "integer"}, true
-	case "bits.RotateLeft8":
+	case "bits.RotateLeft8", "time.Duration.Round", "time.Duration.Truncate":
 		return operation{minInt, maxInt, 2, 2, "integer"}, true
 	case "color.RGBToCMYK":
 		return operation{0, 255, 3, 3, "cmyk"}, true

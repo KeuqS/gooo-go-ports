@@ -1,0 +1,18 @@
+// Compare interval rounding and truncation in exact signed nanoseconds.
+// A nonpositive quantum leaves both results unchanged and both deltas zero.
+// Rounded/truncated values keep the duration's sign or become zero. Changes
+// are bounded by the positive quantum; MinInt64 cannot become zero because
+// no positive int64 quantum exceeds its magnitude. Both differences fit int64.
+package duration_quantizer
+namespace gooo_ports_examples_duration_quantizer
+import duration "go/time"
+entity Integer id "gooo://std/integer"
+entity Inspection id "gooo://go-ports/examples/duration-quantizer/inspection" fields {
+    field rounded id "gooo://go-ports/examples/duration-quantizer/inspection/rounded" type integer required one
+    field truncated id "gooo://go-ports/examples/duration-quantizer/inspection/truncated" type integer required one
+    field round_adjustment id "gooo://go-ports/examples/duration-quantizer/inspection/round-adjustment" type integer required one
+    field truncation_remainder id "gooo://go-ports/examples/duration-quantizer/inspection/truncation-remainder" type integer required one
+}
+activity Inspect(Integer, Integer) -> Inspection id "gooo://go-ports/examples/duration-quantizer/inspect" computes `let rounded = duration.DurationRound(input0, input1)
+let truncated = duration.DurationTruncate(input0, input1)
+return Inspection{rounded: rounded, truncated: truncated, round_adjustment: rounded - input0, truncation_remainder: input0 - truncated}`

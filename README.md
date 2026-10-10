@@ -4,7 +4,7 @@
 describing what programs should do and inspecting how they are built and run.
 This independent ecosystem project implements selected Go standard-library functions in Gooo,
 with independent Go reference outputs and saved replay. The current scope is
-16 HTTP, Unicode, 8-bit integer, and color-conversion functions, five native importing examples,
+18 HTTP, Unicode, 8-bit integer, color-conversion, and duration functions, six native importing examples,
 and an importing browser dispatcher.
 Use Go 1.27.2, Git, and a POSIX shell on macOS or Linux: run `./tools/bootstrap.sh`, then
 `go run ./cmd/verify --out out/first` from this repository. The output directory must be new.
@@ -14,7 +14,7 @@ Color ports and their consumer add separate reference and rejection cases, detai
 Other domains use finite boundary cases and samples. This is an independent experimental port,
 not a complete Go package implementation or an official Google/Go project.
 
-[Try the browser demo](https://kimjooyoon.github.io/gooo-go-ports/) to run all 16 HTTP, Unicode, byte, and color functions
+[Try the browser demo](https://kimjooyoon.github.io/gooo-go-ports/) to run all 18 HTTP, Unicode, byte, color, and duration functions
 without installing a compiler. It executes a precompiled Gooo program as WebAssembly;
 it is not an editor for compiling arbitrary source. The page includes the Gooo source,
 unmodified generated Go, execution receipts, and an optional reference-check button.
@@ -27,6 +27,10 @@ reports converted channels, recovered RGB values, and any integer round-trip dif
 Choose **bits.RotateLeft8** to enter a byte and a signed rotation count and see the
 eight bits before and after. The native [byte rotation inspector](examples/byte-rotation/README.md)
 also restores the byte and checks its one-bit count.
+Choose **time.Duration.Round** or **time.Duration.Truncate** to adjust an exact
+signed nanosecond duration to a chosen multiple. The native
+[duration quantizer](examples/duration-quantizer/README.md) returns both results
+and their adjustments. Zero or negative multiples preserve the original duration.
 
 For a fixed snapshot, download [experimental release v0.1.0-preview.1](https://github.com/kimjooyoon/gooo-go-ports/releases/tag/v0.1.0-preview.1).
 It includes separate source, native execution/replay evidence, and standalone browser
@@ -39,7 +43,7 @@ with the page URL or command and what happened. A working demo or shared input l
 is not required. See [reporting guidance](CONTRIBUTING.md#report-a-problem) for useful details.
 
 Go로 작성된 오픈소스의 동작을 **Gooo 함수로 이식하고 원본과 비교**하는 공개 실험 저장소입니다.
-현재 Go 표준 라이브러리의 HTTP·Unicode·8비트 정수·색상 변환 함수 16개를 제공합니다.
+현재 Go 표준 라이브러리의 HTTP·Unicode·8비트 정수·색상 변환·시간 간격 함수 18개를 제공합니다.
 Go 소스를 분석해 타입·경계값·실패 동작을 명시하고, 계산은 `ports/**/*.gooo`에 구현합니다.
 Go 검증 도구는 원본 함수 호출, 입력 전달, 결과 비교와 실행 기록 저장을 맡습니다.
 
@@ -59,6 +63,7 @@ Go 검증 도구는 원본 함수 호출, 입력 전달, 결과 비교와 실행
 | `go/math/bits` | `Len8`, `LeadingZeros8`, `TrailingZeros8`, `OnesCount8`, `Reverse8` | 0..255 정수의 비트 길이, 앞·뒤 0 개수, 1 개수와 비트 순서 반전. 비교·산술로 구현 |
 | `go/math/bits` | `RotateLeft8` | 바이트와 signed int64 회전 수를 받아 왼쪽 회전. 음수는 오른쪽 회전이며 반환값은 0..255 |
 | `go/image/color` | `RGBToCMYK`, `CMYKToRGB` | 각 채널 0..255의 RGB 3성분·CMYK 4성분 변환. 다중 반환은 `CMYK`·`RGB` 레코드 |
+| `go/time` | `DurationRound`, `DurationTruncate` | Go Duration 메서드의 수신 객체를 첫 인수로 전달. 두 signed int64 나노초 입력의 반올림·절삭과 범위 초과 시 포화 |
 
 원본의 `rune` 입력은 int32 범위를 Gooo Integer로 전달합니다. `byte` 호환 범위는
 0..255입니다. 묵시적으로 정수 폭을 줄이지 않습니다. `RuneStart`의 범위 밖 입력은
@@ -70,17 +75,21 @@ Go의 byte 변환처럼 입력을 잘라서 계산하지 않습니다. 0의 앞�
 `StatusText`와 `RotateLeft8`의 Go int 입력 비교는 int가 64비트인 amd64·arm64에서 실행합니다.
 회전 수는 int64 전체를 보존하며, 나머지를 먼저 계산해 최솟값의 부호 반전을 피합니다.
 원본 RotateLeft8의 입력에 무관한 실행시간 보장은 분기·산술로 구현한 포트에 계승하지 않습니다.
-HTTP 서버나 UTF 인코딩 패키지 전체의 이식은 아닙니다.
+시간 간격의 두 입력은 signed int64 나노초 전체 범위입니다. 단위가 0 이하이면 원래 값을
+반환하며, 정확한 중간값은 0에서 멀어지는 쪽으로 반올림합니다. 반올림 결과가 범위를
+넘으면 int64 최솟값·최댓값으로 포화되므로 결과가 단위의 배수가 아닐 수 있습니다.
+HTTP 서버, UTF 인코딩 패키지, Go time 패키지 전체의 이식은 아닙니다.
 
 ## 실행하기
 
-[브라우저 데모](https://kimjooyoon.github.io/gooo-go-ports/)는 설치 없이 16개 함수를
+[브라우저 데모](https://kimjooyoon.github.io/gooo-go-ports/)는 설치 없이 18개 함수를
 실행합니다. 실제 Gooo importing 예제를 고정 컴파일러로 생성하고, 생성된 Go를
 한 글자도 수정하지 않은 채 WebAssembly로 빌드합니다. 입력·출력 경계의 Go bridge는
 정수 범위 검사와 직렬화만 맡습니다. 임의 Gooo 소스를 브라우저에서 컴파일하지는 않습니다.
 HTTP 입력은 int64, rune 입력은 int32, byte·색상 채널 입력은 0..255로 제한하며 범위 밖 입력을 거부합니다.
 회전 수는 signed int64 전체 범위이며 음수는 오른쪽 회전입니다.
-JavaScript Number를 거치지 않고 십진수 문자열로 전달합니다.
+시간 간격과 단위도 signed int64 나노초이며 0 이하 단위를 포함합니다.
+모든 정수 입력은 JavaScript Number를 거치지 않고 십진수 문자열로 전달합니다.
 RGB는 3개, CMYK는 4개 채널을 각각 전달하며 채널을 하나의 정수에 묶거나 잘라내지 않습니다.
 결과에는 채널 이름과 정수 값이 표시됩니다. RGB 미리보기는 입력 또는 반환된 RGB를 보여주며
 색상 프로파일이나 프린터 출력 보정은 수행하지 않습니다.
@@ -110,13 +119,14 @@ python3 -m http.server 8766 --bind 127.0.0.1 --directory out/browser/site
 마지막 명령은 Python 3가 필요하며, 실행 후 `http://127.0.0.1:8766`을 엽니다.
 다른 정적 HTTP 서버를 사용해도 됩니다. `--out` 디렉터리는 새 경로여야 합니다.
 브라우저 비교는 기존 함수 입력 3,135개와 정밀도 경계 2개를 보존하고 색상 원본 비교 1,300개를
-추가한 4,437건을 보존합니다. 회전 원본 비교 2,472건을 더해 **6,909건**입니다.
-잘못된 입력·채널 개수 등의 거부 **239건**은 별도 집계합니다.
-Node smoke 검사는 공유 입력 왕복 6,909건과 추가 호출 형태·타입 오류 33건도 검사하므로
-총 거부 검사는 **272건**입니다. 아래 native 소비 예제는 브라우저 집계에 포함하지 않습니다.
+추가한 4,437건과 회전 원본 비교 2,472건을 합친 6,909건을 보존합니다.
+시간 간격 두 함수에 각각 1,789건을 추가해 **10,487건**입니다.
+잘못된 입력·채널 개수 등의 거부 **301건**은 별도 집계합니다.
+Node smoke 검사는 공유 입력 왕복 10,487건과 추가 호출 형태·타입 오류 45건도 검사하므로
+총 거부 검사는 **346건**입니다. 아래 native 소비 예제는 브라우저 집계에 포함하지 않습니다.
 HTTP·rune·색상 검사는 유한 입력 관측이며 패키지 전체 호환성이나 성능을 보장하지 않습니다.
 
-브라우저 생성용 사례 **121개**도 기대 결과와 함께 native 실행·저장된 프로그램 재실행을 검증합니다.
+브라우저 생성용 사례 **153개**도 기대 결과와 함께 native 실행·저장된 프로그램 재실행을 검증합니다.
 입력 파일당 128개·32 KiB 제한을 지키도록 실제 JSON 바이트 크기로 나누며 사례를 생략하지 않습니다.
 배포물의 `evidence-index.json`에 모든 배치 입력·실행·재실행 파일과 해시가 있습니다.
 `execution.json`·`replay.json`은 첫 배치의 원본 바이트 별칭이며 전체 기록은 인덱스를 따릅니다.
@@ -210,6 +220,11 @@ Gooo에서 조합하며 원본의 전체 uint8 입력 범위를 유지합니다.
 그대로 입력받으며, byte로 잘라내거나 원래 회전 수를 부호 반전하지 않습니다.
 브라우저에서는 단일 회전 함수를 실행하고 입력·출력의 8비트를 비교할 수 있습니다.
 
+여섯 번째 앱인 [시간 간격 조정기](examples/duration-quantizer/README.md)는 나노초 단위의
+시간 간격과 단위를 받아 반올림·절삭 결과, 반올림 변경량과 절삭 나머지를 반환합니다.
+두 Go Duration 메서드의 전체 int64 입력 범위를 보존하고, 시계나 외부 서비스를
+호출하지 않습니다. 브라우저에서는 각 함수를 별도로 실행하고 정확한 입력을 공유합니다.
+
 ## 다른 Gooo 프로그램에서 가져오기
 
 [새 프로젝트에서 포트 사용하기](docs/use-in-your-project.md)는 고정 소스를 받고
@@ -242,8 +257,10 @@ manifest 기준 상대 파일 경로를 등록합니다. import 자체가 패키
 그대로 유지합니다. 색상 포트는 원본 비교 **1,300건**·거부 **56건**, 색상 소비 앱은
 원본 비교 **637건**·거부 **24건**을 추가합니다. 이 **5,510건**은 바뀌지 않습니다.
 바이트 회전 포트는 원본 비교 **2,472건**·거부 **36건**, 회전 소비 앱은 원본 비교 **672건**·
-거부 **36건**을 추가해 전체 native 검사는 **8,726건**, 이식 함수는 **16개**입니다.
-각 영역 밖 거부 사례는 Go 동등성 집계가 아닙니다.
+거부 **36건**을 추가한 **8,726건**도 유지합니다. 시간 간격 두 포트의 원본 비교
+**3,578건**, 소비 앱 **1,789건**을 더해 전체 native 검사는 **14,093건**, 이식 함수는
+**18개**입니다. 시간 간격은 두 입력의 전체 int64 범위를 받으며 영역 밖 확장 계약이 없습니다.
+기존 영역 밖 거부 사례는 Go 동등성 집계가 아닙니다.
 
 | 대상 | 입력 수 | 구성 |
 | --- | ---: | --- |
@@ -262,9 +279,11 @@ manifest 기준 상대 파일 경로를 등록합니다. import 자체가 패키
 | Color InspectRGB consumer | 637 + 24 | RGB→CMYK→RGB 결과·채널 차이·일치 여부, 범위 밖 거부 |
 | bits.RotateLeft8 | 2,472 + 36 | 256바이트 × 8회전 2,048쌍, 원래 회전 수의 음수·int64 경계·표본, 별도 바이트 영역 밖 거부 |
 | Byte rotation Inspect consumer | 672 + 36 | 모든 byte의 1회전, 회전 수 경계·표본, 원상 복원·1비트 개수와 거부 계약 |
+| DurationRound / DurationTruncate | 각 1,789 | 작은 정수 격자, 두 int64 인수의 경계, 정확한 배수·중간값·포화 전후, 고정 표본 |
+| Duration quantizer Inspect consumer | 1,789 | 같은 원래 입력으로 반올림·절삭·변경량·나머지 레코드 비교 |
 
-Gooo 실행 입력 상한에 맞춰 총 112개 배치를 실행합니다. 기존 80개 배치를 유지하고,
-회전 포트 20개 배치(128건 이하), 회전 앱 12개 배치(64건 이하)를 추가합니다.
+Gooo 실행 입력 상한에 맞춰 총 168개 배치를 실행합니다. 기존 112개 배치를 유지하고,
+시간 간격 포트 28개 배치(128건 이하), 소비 앱 28개 배치(64건 이하)를 추가합니다.
 Unicode 앱과 색상 포트는 64건 이하, 색상 소비 앱은 32건 이하입니다.
 새 레코드 기대값도 들여쓴 JSON과 마지막 개행을 포함해 32KiB 한도를 검사합니다.
 원본 비교 기대값은 Gooo 구현과 별개인 Go 표준 함수로 계산합니다.
@@ -291,6 +310,7 @@ Dispatch 계약과 입력 타입·소스 연결을 확인합니다.
 [Unicode 소비 앱 추가 관측](evidence/unicode-inspector-20261010.json),
 [색상 포트·소비 앱 추가 관측](evidence/color-ports-20261010.json),
 [바이트 회전 포트·소비 앱 추가 관측](evidence/byte-rotation-20261010.json),
+[시간 간격 포트·소비 앱 추가 관측](evidence/duration-20261010.json),
 [v0.1.0-preview.1의 전체 실행·재실행 기록](https://github.com/kimjooyoon/gooo-go-ports/releases/tag/v0.1.0-preview.1)을
 참고하세요. 릴리스 기록은 해당 버전에 고정되어 있으며, 이후 변경의 기록은 각 GitHub
 Actions 실행에서 확인할 수 있습니다.

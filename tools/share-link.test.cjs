@@ -262,3 +262,24 @@ test('rotation v1 links keep byte and signed int64 count domains separate', () =
   assert.match(a, /^#gooo-share\?v=1&/);
   assert.throws(() => share.parse(a.replace('v=1', 'v=2')));
 });
+
+
+test('duration v1 links preserve both signed int64 values including nonpositive multiples', () => {
+  const values = ['-9223372036854775808', '-9223372036854775807', '-9007199254740993', '-1', '0', '1', '9007199254740992', '9007199254740993', '9223372036854775807'];
+  for (const operation of ['time.Duration.Round', 'time.Duration.Truncate']) {
+    for (const duration of values) for (const multiple of values) accepts(operation, [duration, multiple]);
+    for (const position of [0, 1]) {
+      for (const value of ['', '-0', '+1', '01', ' 1', '1 ', '1.0', '1e2', '0xff', 'NaN', '１２', '9223372036854775808', '-9223372036854775809', 0, 1n, null, undefined]) {
+        const inputs = ['9007199254740993', '2']; inputs[position] = value;
+        rejects(operation, inputs);
+      }
+    }
+    for (let n = 0; n <= 5; n++) if (n !== 2) rejects(operation, Array(n).fill('0'));
+    rejects(operation, new Array(2));
+    const encoded = share.format(state({ operation, inputs: ['-9223372036854775808', '9223372036854775807'] }));
+    assert.match(encoded, /^#gooo-share\?v=1&/);
+    assert.throws(() => share.parse(encoded.replace('v=1', 'v=2')));
+    assert.throws(() => share.parse(encoded + '&c=0'));
+    assert.throws(() => share.parse(encoded + '&result=0'));
+  }
+});

@@ -13,7 +13,7 @@
 
 ## 이번에 옮기는 동작
 
-Go 1.27.2의 공개 소스와 동작을 읽고, 다음 **16개 함수**를 Gooo 활동으로 표현한다.
+Go 1.27.2의 공개 소스와 동작을 읽고, 다음 **18개 함수**를 Gooo 활동으로 표현한다.
 패키지 전체, HTTP 서버, 문자열 인코더 전체 또는 Go API와의 바이너리 호환을 주장하지 않는다.
 
 | 원본 | Gooo 원본 | 표현 방법과 호환 범위 |
@@ -26,6 +26,7 @@ Go 1.27.2의 공개 소스와 동작을 읽고, 다음 **16개 함수**를 Gooo 
 | `math/bits.Len8`, `LeadingZeros8`, `TrailingZeros8`, `OnesCount8`, `Reverse8` | [bits.gooo](../ports/math/bits.gooo) | 0..255를 먼저 검사한 뒤 비교와 정수 산술로 계산. 테이블·비트 연산·반복문을 쓰지 않으며 영역 밖은 -1이라는 별도 확장 계약 |
 | `math/bits.RotateLeft8` | 같은 파일 | byte 0..255와 원래 signed int64 회전 수. 회전 수의 나머지를 먼저 구해 overflow 없이 산술로 순환 이동. 원본의 입력에 무관한 실행시간 보장은 계승하지 않음 |
 | `image/color.RGBToCMYK`, `CMYKToRGB` | [color.gooo](../ports/image/color.gooo) | 원래 uint8 3/4성분의 전체 범위를 검사한 뒤 정수 변환. 결과는 이름 있는 `CMYK`·`RGB` 레코드이며 영역 밖은 모든 성분 -1 |
+| `time.Duration.Round`, `Truncate` | [duration.gooo](../ports/time/duration.gooo) | 수신 객체를 첫 번째 인수로 옮긴 `DurationRound(d, m)`, `DurationTruncate(d, m)`. 두 인수 모두 전체 signed int64 나노초 범위이며 중간값 처리·포화·0 이하 단위의 동작을 유지 |
 
 Go의 `rune`은 int32이고 Gooo Integer는 int64다. 테스트에서 int64를 Go rune/byte로
 무조건 변환하면 잘림으로 잘못된 동등성 주장이 생긴다. 원본 입력 범위의 비교와 Gooo
@@ -52,6 +53,14 @@ Go의 `rune`은 int32이고 Gooo Integer는 int64다. 테스트에서 int64를 G
 색상 변환은 고정 리비전의
 [image/color/ycbcr.go](https://github.com/golang/go/blob/022c8636110ebac86a9b88724cda168ed713c21f/src/image/color/ycbcr.go#L315)에 근거한다.
 저작권 표기와 BSD 라이선스를 보존한다.
+
+시간 간격은 [고정 time.go](https://github.com/golang/go/blob/022c8636110ebac86a9b88724cda168ed713c21f/src/time/time.go#L1110)의
+두 Duration 메서드를 옮긴다. `m <= 0`이면 원래 `d`를 돌려주며, 양수 `m`에서는
+나머지와 반대쪽 배수까지의 거리를 비교한다. 정확한 중간값은 0에서 멀어지는 쪽으로
+반올림한다. 최솟값을 부호 반전하거나 나머지를 두 배로 만들지 않고, 최종 덧셈·뺄셈
+전에 int64 경계를 검사해 원본의 포화 동작을 보존한다. 절삭은 부호 있는 나머지를
+제거해 0으로 향한다. [소비 예제](../examples/duration-quantizer/README.md)는 두 포트를
+함께 호출하고 변경량을 보여준다. 시계·타이머·날짜·기간 문자열 처리는 범위에 포함하지 않는다.
 
 ## 확인한 언어 기능
 

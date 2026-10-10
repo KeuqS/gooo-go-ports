@@ -92,6 +92,11 @@ func run() error {
 		return err
 	}
 	suites = append(suites, rotations.Suites...)
+	durations, err := durationCorpus()
+	if err != nil {
+		return err
+	}
+	suites = append(suites, durations.Suites...)
 	if *out == "" {
 		return fmt.Errorf("provide --out for a new evidence directory")
 	}
@@ -170,6 +175,12 @@ func run() error {
 		if s.Package == "app/byte-rotation" {
 			batchSize = rotationInspectorBatchSize
 		}
+		if s.Package == "go/time" {
+			batchSize = durationPortBatchSize
+		}
+		if s.Package == "app/duration-quantizer" {
+			batchSize = durationQuantizerBatchSize
+		}
 		for start := 0; start < len(s.Cases); start += batchSize {
 			end := min(start+batchSize, len(s.Cases))
 			batch := s
@@ -245,14 +256,15 @@ func run() error {
 	return save(filepath.Join(root, "summary.json"), map[string]any{
 		"schema": "gooo/go-ports-differential/v1", "go_version": runtime.Version(), "goos": runtime.GOOS, "goarch": runtime.GOARCH,
 		"compiler_revision": lock.CompilerRevision, "source_sha256": sourceHashes,
-		"ported_functions": 16, "consumer_programs": 5, "consumer_activities": 6,
+		"ported_functions": 18, "consumer_programs": 6, "consumer_activities": 7,
 		"legacy_cases": legacyCases, "unicode_reference_cases": inspector.ReferenceCases, "unicode_rejection_cases": inspector.RejectionCases,
 		"color_port_reference_cases": colors.PortReferenceCases, "color_port_rejection_cases": colors.PortRejectionCases,
 		"color_consumer_reference_cases": colors.ConsumerReferenceCases, "color_consumer_rejection_cases": colors.ConsumerRejectionCases,
 		"rotation_port_reference_cases": rotations.PortReferenceCases, "rotation_port_rejection_cases": rotations.PortRejectionCases,
 		"rotation_consumer_reference_cases": rotations.ConsumerReferenceCases, "rotation_consumer_rejection_cases": rotations.ConsumerRejectionCases,
+		"duration_port_reference_cases": durations.PortReferenceCases, "duration_consumer_reference_cases": durations.ConsumerReferenceCases,
 		"cases": total, "passed": total, "runs": reports,
-		"scope": "Finite differential observations against pinned Go source, plus identical saved replay. The 5,510 existing cases are unchanged. Color and rotation port/consumer Go-reference cases and explicit out-of-byte rejection cases are counted separately. RuneStart and the five original unary math/bits functions each cover all 256 byte values exactly once, excluding out-of-domain inputs. RotateLeft8 covers all 2,048 byte/rotation pairs only for x=0..255 and k=0..7; other signed int64 rotations have finite boundary/sample observations with original inputs preserved. No claim of exhaustive equivalence for all rotations or other domains, input-independent execution time, whole-package compatibility, ICC color management, or printed appearance.",
+		"scope": "Finite differential observations against pinned Go source, plus identical saved replay. The 8,726 existing cases are unchanged. Duration ports and their consumer preserve both signed int64 nanosecond inputs, including nonpositive quanta, and add finite Go-reference observations without domain-rejection extensions. Color and rotation port/consumer Go-reference cases and explicit out-of-byte rejection cases are counted separately. RuneStart and the five original unary math/bits functions each cover all 256 byte values exactly once, excluding out-of-domain inputs. RotateLeft8 covers all 2,048 byte/rotation pairs only for x=0..255 and k=0..7; other signed int64 rotations have finite boundary/sample observations with original inputs preserved. No claim of exhaustive equivalence for all rotations or other domains, input-independent execution time, whole-package compatibility, ICC color management, or printed appearance.",
 	})
 }
 func caseDocument(s suite) any {
