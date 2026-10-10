@@ -74,11 +74,11 @@ discussing policy-review and incident-reproduction work, with no live model API,
 real export or production-security claim. Its cases are separate from the port
 compatibility counts. The guide includes a focused request for workflow feedback.
 
-For a fixed snapshot, download [experimental release v0.1.0-preview.2](https://github.com/kimjooyoon/gooo-go-ports/releases/tag/v0.1.0-preview.2).
-It includes separate source, native execution/replay evidence, and standalone browser
-archives, with licenses, provenance, and checksums. Downloads do not require a GitHub
-login. The release page explains which archive to choose and how to verify it;
-the live demo and main branch can be newer than this snapshot.
+For a fixed snapshot, choose an [experimental release](https://github.com/kimjooyoon/gooo-go-ports/releases).
+Each release page lists its included tools and separate source, execution/replay
+evidence, and standalone browser archives, with licenses, provenance, and checksums.
+Downloads do not require a GitHub login. Follow that version's download and verification
+instructions; the live demo and main branch can be newer than the chosen snapshot.
 
 If loading or running fails, [report a problem](https://github.com/kimjooyoon/gooo-go-ports/issues/new?template=problem.yml)
 with the page URL or command and what happened. A working demo or shared input link
@@ -172,6 +172,9 @@ python3 -m http.server 8766 --bind 127.0.0.1 --directory out/browser/site
 
 마지막 명령은 Python 3가 필요하며, 실행 후 `http://127.0.0.1:8766`을 엽니다.
 다른 정적 HTTP 서버를 사용해도 됩니다. `--out` 디렉터리는 새 경로여야 합니다.
+여러 배포본을 로컬에서 열 때는 버전별 디렉터리와 URL을 유지하세요. 같은 URL의
+파일을 교체했다면 캐시를 무시하고 새로고침해 HTML과 스크립트를 다시 받습니다.
+실행 파일·메타데이터·비교 입력은 브라우저 캐시를 재사용하지 않고 요청합니다.
 브라우저 비교는 기존 함수 입력 3,135개와 정밀도 경계 2개를 보존하고 색상 원본 비교 1,300개를
 추가한 4,437건과 회전 원본 비교 2,472건을 합친 6,909건을 보존합니다.
 시간 간격 두 함수에 각각 1,789건을 더한 **10,487건**도 유지하고, `IsSpace` **506건**을
@@ -410,7 +413,7 @@ Dispatch 계약과 입력 타입·소스 연결을 확인합니다.
 [시간 간격 포트·소비 앱 추가 관측](evidence/duration-20261010.json),
 [공백 포트·소비 앱 추가 관측](evidence/whitespace-20261010.json),
 [사각형 포트·소비 앱 추가 관측](evidence/image-rectangles-20261011.json),
-[v0.1.0-preview.2의 전체 실행·재실행 기록](https://github.com/kimjooyoon/gooo-go-ports/releases/tag/v0.1.0-preview.2)을
+[릴리스별 실행·재실행 기록](https://github.com/kimjooyoon/gooo-go-ports/releases)을
 참고하세요. 릴리스 기록은 해당 버전에 고정되어 있으며, 이후 변경의 기록은 각 GitHub
 Actions 실행에서 확인할 수 있습니다.
 
