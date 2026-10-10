@@ -32,7 +32,7 @@ signed nanosecond duration to a chosen multiple. The native
 [duration quantizer](examples/duration-quantizer/README.md) returns both results
 and their adjustments. Zero or negative multiples preserve the original duration.
 
-For a fixed snapshot, download [experimental release v0.1.0-preview.1](https://github.com/kimjooyoon/gooo-go-ports/releases/tag/v0.1.0-preview.1).
+For a fixed snapshot, download [experimental release v0.1.0-preview.2](https://github.com/kimjooyoon/gooo-go-ports/releases/tag/v0.1.0-preview.2).
 It includes separate source, native execution/replay evidence, and standalone browser
 archives, with licenses, provenance, and checksums. Downloads do not require a GitHub
 login. The release page explains which archive to choose and how to verify it;
@@ -311,7 +311,7 @@ Dispatch 계약과 입력 타입·소스 연결을 확인합니다.
 [색상 포트·소비 앱 추가 관측](evidence/color-ports-20261010.json),
 [바이트 회전 포트·소비 앱 추가 관측](evidence/byte-rotation-20261010.json),
 [시간 간격 포트·소비 앱 추가 관측](evidence/duration-20261010.json),
-[v0.1.0-preview.1의 전체 실행·재실행 기록](https://github.com/kimjooyoon/gooo-go-ports/releases/tag/v0.1.0-preview.1)을
+[v0.1.0-preview.2의 전체 실행·재실행 기록](https://github.com/kimjooyoon/gooo-go-ports/releases/tag/v0.1.0-preview.2)을
 참고하세요. 릴리스 기록은 해당 버전에 고정되어 있으며, 이후 변경의 기록은 각 GitHub
 Actions 실행에서 확인할 수 있습니다.
 
