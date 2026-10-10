@@ -107,8 +107,16 @@ button, input, select {
   color: var(--muted)
 }
 
-.masthead>.text-link {
+.repository-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 22px;
   margin-left: auto
+}
+
+.repository-links a {
+  white-space: nowrap
 }
 
 .text-link {
@@ -749,8 +757,26 @@ progress {
   margin-bottom: 14px
 }
 
-.scope-copy>.text-link {
-  font-size: 11px
+.scope-copy {
+  min-width: 0
+}
+
+.language-example {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 16px;
+  margin: 0 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--white);
+  font-size: 11px;
+  line-height: 1.8
+}
+
+.language-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px
 }
 
 .provenance-card {
@@ -922,7 +948,11 @@ footer {
     font-size: 29px
   }
 
-  .masthead>.text-link {
+  .repository-links {
+    gap: 6px 14px
+  }
+
+  .repository-links .text-link {
     font-size: 11px
   }
 
