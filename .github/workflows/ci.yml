@@ -26,6 +26,7 @@ jobs:
           test -z "$(git ls-files -z '*.go' | xargs -0 -r gofmt -l)"
           go vet ./...
           go test -race ./...
+          python3 tools/bootstrap.test.py
       - name: Build and identify the pinned compiler from a clean checkout
         run: |
           mkdir -p out

@@ -6,7 +6,7 @@ This independent ecosystem project implements selected Go standard-library funct
 with independent Go reference outputs and saved replay. The current scope is
 16 HTTP, Unicode, 8-bit integer, and color-conversion functions, five native importing examples,
 and an importing browser dispatcher.
-Use Go 1.27.2, Git, and a POSIX shell: run `./tools/bootstrap.sh`, then
+Use Go 1.27.2, Git, and a POSIX shell on macOS or Linux: run `./tools/bootstrap.sh`, then
 `go run ./cmd/verify --out out/first` from this repository. The output directory must be new.
 The original 3,147-case corpus is unchanged. A Unicode inspector adds 334 Go-reference
 cases and 12 explicit domain-rejection cases; six unary byte-domain functions cover all 256 inputs.
@@ -134,6 +134,32 @@ bootstrap은 고정한 컴파일러를 `.compiler/`에 받아 `.gooo`를 빌드�
 저장된 프로그램을 다시 실행합니다. 결과는 `out/first/summary.json`, 각 함수·배치의
 `execution.json`, `replay.json`, 입력 파일과 Gooo 소스에 남습니다.
 `--out`에는 기존에 없는 디렉터리를 지정합니다.
+
+### Bootstrap recovery
+
+The current bootstrap stages downloads and builds before installing `.compiler`
+and replacing `.gooo`. A failed fetch, checkout, build, or identity check leaves
+the prior executable intact; correct the reported cause and rerun
+`./tools/bootstrap.sh`. An installed compiler checkout must match the pinned
+revision and have no modified, untracked, or ignored files. Unrecognized paths
+are preserved and rejected with a diagnostic. An empty checkout left by the old
+bootstrap's failed first fetch is recovered after its original Git metadata is
+preserved under `.compiler-interrupted.*/compiler`.
+
+Only one bootstrap can run at a time. Handled HUP, INT, and TERM signals clean up
+its temporary files and lock; a shell may wait for its child command to stop
+before running that cleanup. SIGKILL or a host crash cannot run cleanup. If
+`.bootstrap.lock` remains, check its `pid` and confirm that the bootstrap and its
+child commands have stopped. Inspect the directory, then **move it aside** to a
+new backup path before retrying. The script does not automatically delete an
+existing lock or unknown files. Do not move a lock while an install is running.
+
+If the selected Go version differs, use `export GOTOOLCHAIN=go1.27.2` in your
+shell before retrying. Bootstrap disables an enclosing Go workspace for its own
+commands. Its temporary-directory utility, `mktemp`, is supplied by macOS and
+Linux; the recovery regression suite additionally uses Python 3 in CI.
+
+### Run importing examples
 
 실제 Gooo 앱은 상태 코드를 받아 `{code, text, known}`을 만듭니다.
 

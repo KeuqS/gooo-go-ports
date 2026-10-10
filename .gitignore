@@ -2,3 +2,5 @@
 .compiler/
 out/
 .DS_Store
+.bootstrap.lock/
+.compiler-interrupted.*/
