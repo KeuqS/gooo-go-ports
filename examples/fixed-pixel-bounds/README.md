@@ -11,6 +11,9 @@ It accepts coordinates already supplied by the caller. It does not read fonts,
 shape text, rasterize glyphs, open images or crop pixel data. The browser tools
 and existing `CropPlan` / `DragCropPlan` activities are unchanged.
 
+The [illustrated technical note](https://kimjooyoon.github.io/gooo-go-ports/fixed-point-bounds.html)
+shows raw values, pixel values and the empty-before-rounding rule in a compact table.
+
 ## Run and verify
 
 From the repository root, with Go 1.27.2, Git, a POSIX shell and Python 3 on
