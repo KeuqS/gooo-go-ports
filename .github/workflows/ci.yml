@@ -38,6 +38,7 @@ jobs:
         run: |
           go run ./cmd/gen-unicode --check
           go run ./cmd/gen-simple-fold --check
+          go run ./cmd/gen-case-mapping --check
       - name: Build and identify the pinned compiler from a clean checkout
         run: |
           mkdir -p out
@@ -60,6 +61,8 @@ jobs:
           ./.gooo check ports/image/geometry.gooo
           ./.gooo check ports/image/canon.gooo
           ./.gooo check ports/image/fixed.gooo
+          ./.gooo check ports/unicode/case_mapping.gooo
+          ./.gooo check examples/case-inspector/main.gooo
           ./.gooo check examples/fixed-pixel-bounds/main.gooo
           ./.gooo check examples/crop-planner/drag_crop.gooo
           ./.gooo check ports/time/duration.gooo
@@ -71,7 +74,7 @@ jobs:
             .schema == "gooo/go-ports-differential/v1" and
             .go_version == "go1.27.2" and
             .compiler_revision == "90ff2bb5aeffc2ac553496b646d14db1e8d33fdb" and
-            .ported_functions == 31 and .consumer_programs == 12 and .consumer_activities == 14 and
+            .ported_functions == 35 and .consumer_programs == 13 and .consumer_activities == 15 and
             .legacy_cases == 3147 and .unicode_reference_cases == 334 and .unicode_rejection_cases == 12 and
             .color_port_reference_cases == 1300 and .color_port_rejection_cases == 56 and
             .color_consumer_reference_cases == 637 and .color_consumer_rejection_cases == 24 and
@@ -98,11 +101,57 @@ jobs:
               .input_count == 16777216 and .comparison_count == 16777216 and
               .component_comparison_count == 50331648 and .mismatches == 0 and
               .output_sha256 == .oracle_sha256) and
-            .cases == 37232 and .passed == 37232 and
-            (.runs | length) == 45 and
-            ([.runs[].cases] | add) == 37232 and ([.runs[].batches] | add) == 531 and
+            .case_mapping_port_reference_cases == 16208 and .case_mapping_port_extension_cases == 198 and
+            .case_mapping_invalid_case_reference_cases == 132 and .case_mapping_invalid_case_extension_cases == 132 and
+            .case_mapping_consumer_reference_cases == 3602 and .case_mapping_consumer_extension_cases == 11 and
+            (.case_mapping_exhaustive | keys) == ["To", "ToLower", "ToTitle", "ToUpper"] and
+            all(.case_mapping_exhaustive | to_entries[];
+              .key == .value.operation and .value.schema == "gooo/case-mapping-exhaustive-native/v1" and
+              .value.go_version == "go1.27.2" and .value.unicode_version == "17.0.0" and
+              .value.unicode_range_inputs == 1114112 and .value.mismatches == 0) and
+            .case_mapping_exhaustive.To.unicode_range_comparisons == 3342336 and
+            ([.case_mapping_exhaustive[].unicode_range_comparisons] | add) == 6684672 and
+            .cases == 57251 and .passed == 57251 and
+            (.runs | length) == 50 and
+            ([.runs[].cases] | add) == 57251 and ([.runs[].batches] | add) == 719 and
             all(.runs[]; .passed == .cases and .replay_equal == true)
           ' out/ci/summary.json
+      - name: Execute and replay the Unicode case inspector
+        run: |
+          ./.gooo package execute --json --inputs examples/case-inspector/inputs.json \
+            case-inspector.workspace.json > out/case-inspector.json
+          ./.gooo package replay --json --receipt out/case-inspector.json \
+            --inputs examples/case-inspector/inputs.json \
+            case-inspector.workspace.json > out/case-inspector-replay.json
+          python3 - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          from tools.receipt_json import loads_receipt
+
+          inputs = json.loads(Path("examples/case-inspector/inputs.json").read_bytes())["inputs"]
+          execution_bytes = Path("out/case-inspector.json").read_bytes()
+          execution = loads_receipt(execution_bytes)
+          replay = loads_receipt(Path("out/case-inspector-replay.json").read_bytes())
+          assert replay["replayed_from_sha256"] == "sha256:" + hashlib.sha256(execution_bytes).hexdigest()
+          deliveries = []
+          for receipt in (execution, replay):
+              assert receipt["decision"] == "OBSERVED"
+              runtime = receipt["result"]["runtime"]
+              assert runtime["model_calls"] == runtime["finite_total"] == runtime["finite_passed"] == 0
+              assert runtime["projection_replayed"] is True and runtime["runtime_replayed"] is True
+              observed = [d for t in runtime["traces"] for d in t["deliveries"]]
+              assert len(observed) == len(inputs) == 26
+              for supplied, delivery in zip(inputs, observed):
+                  original = supplied["app/case-inspector:Describe"]
+                  assert delivery["activity_id"] == "gooo://go-ports/examples/case-inspector/describe"
+                  assert delivery["input"] == original
+                  assert delivery["actual"]["original"] == original
+              deliveries.append(observed)
+          assert deliveries[0] == deliveries[1]
+          assert deliveries[0][0]["actual"] == {"in_rune_domain": True, "valid_scalar": True, "original": 454, "upper": 452, "lower": 454, "title": 453}
+          assert execution["result"]["composition"]["source"] == replay["result"]["composition"]["source"]
+          PY
       - name: Execute and verify fixed-point bounds example
         run: |
           ./.gooo package execute --json --inputs examples/fixed-pixel-bounds/inputs.json \

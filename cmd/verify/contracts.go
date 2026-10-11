@@ -19,6 +19,11 @@ type activityContract struct {
 func nativeActivityContracts() map[string]activityContract {
 	i := integerEntity
 	return map[string]activityContract{
+		"go/unicode:To":                          {"ports/unicode/case_mapping.gooo", "gooo://go/unicode/To", []string{i, i}},
+		"go/unicode:ToUpper":                     {"ports/unicode/case_mapping.gooo", "gooo://go/unicode/ToUpper", []string{i}},
+		"go/unicode:ToLower":                     {"ports/unicode/case_mapping.gooo", "gooo://go/unicode/ToLower", []string{i}},
+		"go/unicode:ToTitle":                     {"ports/unicode/case_mapping.gooo", "gooo://go/unicode/ToTitle", []string{i}},
+		"app/case-inspector:Describe":            {"examples/case-inspector/main.gooo", "gooo://go-ports/examples/case-inspector/describe", []string{i}},
 		fixedPackage + ":Int26_6Floor":           {"ports/image/fixed.gooo", "gooo://golang.org/x/image/math/fixed/Int26_6/Floor", []string{i}},
 		fixedPackage + ":Int26_6Ceil":            {"ports/image/fixed.gooo", "gooo://golang.org/x/image/math/fixed/Int26_6/Ceil", []string{i}},
 		"example/fixed-pixel-bounds:PixelBounds": {"examples/fixed-pixel-bounds/main.gooo", "gooo://example/fixed-pixel-bounds/pixel-bounds", []string{rectangleEntity, rectangleEntity}},

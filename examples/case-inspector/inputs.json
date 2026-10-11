@@ -1,0 +1,83 @@
+{
+  "schema": "gooo/body-composition-inputs/v1",
+  "inputs": [
+    {
+      "app/case-inspector:Describe": 454
+    },
+    {
+      "app/case-inspector:Describe": 453
+    },
+    {
+      "app/case-inspector:Describe": 452
+    },
+    {
+      "app/case-inspector:Describe": 97
+    },
+    {
+      "app/case-inspector:Describe": 65
+    },
+    {
+      "app/case-inspector:Describe": 223
+    },
+    {
+      "app/case-inspector:Describe": 7838
+    },
+    {
+      "app/case-inspector:Describe": 304
+    },
+    {
+      "app/case-inspector:Describe": 305
+    },
+    {
+      "app/case-inspector:Describe": 931
+    },
+    {
+      "app/case-inspector:Describe": 962
+    },
+    {
+      "app/case-inspector:Describe": 837
+    },
+    {
+      "app/case-inspector:Describe": 8490
+    },
+    {
+      "app/case-inspector:Describe": 314
+    },
+    {
+      "app/case-inspector:Describe": 66600
+    },
+    {
+      "app/case-inspector:Describe": 125218
+    },
+    {
+      "app/case-inspector:Describe": 48
+    },
+    {
+      "app/case-inspector:Describe": 32
+    },
+    {
+      "app/case-inspector:Describe": 55296
+    },
+    {
+      "app/case-inspector:Describe": -1
+    },
+    {
+      "app/case-inspector:Describe": 1114112
+    },
+    {
+      "app/case-inspector:Describe": -2147483648
+    },
+    {
+      "app/case-inspector:Describe": 2147483647
+    },
+    {
+      "app/case-inspector:Describe": 4294967361
+    },
+    {
+      "app/case-inspector:Describe": -9223372036854775808
+    },
+    {
+      "app/case-inspector:Describe": 9223372036854775807
+    }
+  ]
+}

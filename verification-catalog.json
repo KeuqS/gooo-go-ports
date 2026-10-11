@@ -24,7 +24,8 @@
       "sources": [
         "ports/unicode/space.gooo",
         "ports/unicode/classification.gooo",
-        "ports/unicode/simple_fold.gooo"
+        "ports/unicode/simple_fold.gooo",
+        "ports/unicode/case_mapping.gooo"
       ]
     },
     {
@@ -130,6 +131,12 @@
       "path": "example/fixed-pixel-bounds",
       "sources": [
         "examples/fixed-pixel-bounds/main.gooo"
+      ]
+    },
+    {
+      "path": "app/case-inspector",
+      "sources": [
+        "examples/case-inspector/main.gooo"
       ]
     }
   ]

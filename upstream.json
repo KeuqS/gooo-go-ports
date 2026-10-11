@@ -25,6 +25,22 @@
   "ports": [
     {
       "source": "src/unicode/letter.go",
+      "supporting_sources": [
+        "src/unicode/tables.go"
+      ],
+      "target": "ports/unicode/case_mapping.gooo",
+      "symbols": [
+        "To",
+        "ToUpper",
+        "ToLower",
+        "ToTitle"
+      ],
+      "unicode_version": "17.0.0",
+      "generator": "cmd/gen-case-mapping",
+      "api_mapping": "Complete pinned CaseRanges and UpperLower parity are lowered once in Gooo To and shared by ToUpper/ToLower/ToTitle. To receives the original signed int64 case (Go int on the pinned 64-bit targets) followed by the original signed int32 rune represented exactly by Integer. Invalid cases outside 0..2 return U+FFFD before inspecting the rune. A valid case or unary mapping preserves invalid Unicode inputs as Go does; outside-int32 Integer values are a separate identity extension without narrowing. No locale-specific, full-string or multi-rune conversion. Scalar declarations are shared with space.gooo."
+    },
+    {
+      "source": "src/unicode/letter.go",
       "supporting_sources": ["src/unicode/tables.go"],
       "target": "ports/unicode/simple_fold.gooo",
       "symbols": ["SimpleFold"],

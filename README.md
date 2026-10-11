@@ -3,9 +3,9 @@
 [Gooo](https://github.com/kimjooyoon/meta-ontology-go) is an experimental language for
 describing what programs should do and inspecting how they are built and run.
 This independent ecosystem project implements selected Go standard-library and x/image functions in Gooo,
-with independent Go reference outputs and saved replay: 29 standard-library ports
+with independent Go reference outputs and saved replay: 33 standard-library ports
 and two ports from golang.org/x/image. The current scope is
-31 HTTP, Unicode, 8-bit integer, color, duration, rectangle and fixed-point functions, twelve native importing examples,
+35 HTTP, Unicode, 8-bit integer, color, duration, rectangle and fixed-point functions, thirteen native importing examples,
 and an importing browser dispatcher.
 Start by running and editing the small [Gooo tutorial](examples/learn-gooo/README.md).
 With Git, a POSIX shell and a Go installation that supports toolchain selection,
@@ -102,6 +102,14 @@ in its Unicode simple-folding cycle. For example, `K`, `k`, and the Kelvin sign
 special cycles and invalid Unicode values; it is a per-rune API, not whole-string
 folding, normalization, or locale-sensitive text comparison. The browser tools
 continue to provide their existing 21 functions.
+
+The native [case-mapping inspector](examples/case-inspector/README.md) shows one
+rune's uppercase, lowercase and titlecase results. The four ports `unicode.To`,
+`ToUpper`, `ToLower` and `ToTitle` share the complete pinned case table in Gooo.
+For `ǆ`, uppercase is `Ǆ` while titlecase is `ǅ`. The returned record keeps the
+original integer and distinguishes the int32 rune domain from valid Unicode
+scalars. These are simple rune mappings, without locale rules or multi-character
+expansions such as `ß` to `SS`.
 
 The native [YCbCr round-trip inspector](examples/ycbcr-inspector/README.md) imports
 Go's `RGBToYCbCr` and `YCbCrToRGB` ports. It preserves the full byte range and
@@ -457,7 +465,10 @@ int32 밖 identity 확장 **11건**, 두 rune 소비 앱은 원본 비교 **497�
 **2,160건**과 영역 밖 거부 **48건**, 왕복 소비 앱은 원본 비교 **924건**과 거부 **24건**을
 추가한 기존 **34,170건**을 유지합니다. Canon **371건**과 드래그 선택 소비 활동
 **501건**을 더한 기존 **35,042건**도 유지합니다. 여기까지가 표준 라이브러리 29개 포트이며,
-x/image 두 포트와 픽셀 경계 소비 예제의 별도 2,190건을 더하면 총 **37,232건**입니다.
+x/image 두 포트와 픽셀 경계 소비 예제의 별도 2,190건을 더한 기존 **37,232건**도 유지합니다.
+Unicode case mapping 네 포트의 원본 비교 **16,208건**·별도 확장 **198건**, 소비 앱의
+원본 비교 **3,602건**·확장 **11건**을 더해 현재 총 **57,251건**입니다.
+잘못된 case 선택자의 원본 비교 132건·확장 132건은 각각 위 포트 집계에 이미 포함됩니다.
 사각형의 네 좌표는
 각각 전체 signed int64 범위를 받으며 영역 밖 확장 계약이 없습니다.
 시간 간격은 두 입력의 전체 int64 범위를 받으며 영역 밖 확장 계약이 없습니다.
@@ -497,6 +508,10 @@ x/image 두 포트와 픽셀 경계 소비 예제의 별도 2,190건을 더하�
 | Color RGBToYCbCr | 924 + 24 | RGB 경계 격자·모든 회색·반올림 경계·고정 표본, 별도 영역 밖 거부 |
 | Color YCbCrToRGB | 1,236 + 24 | Y′CbCr 경계 격자·회색·채널 포화 전환·고정 표본, 별도 영역 밖 거부 |
 | YCbCr InspectRGB consumer | 924 + 24 | RGB→Y′CbCr→RGB 결과·채널 차이·일치 여부, 별도 영역 밖 거부 |
+| unicode.To | 8,170 + 165 | 세 case의 모든 변경 rune와 범위 경계·교대 parity·int32 표본, invalid case와 별도 int64 rune 확장 |
+| unicode.ToUpper / ToLower | 각 2,691 + 11 | 각 변환의 모든 변경 rune, Latin-1·case range 경계·잘못된 Unicode·정수 경계·표본, 별도 int64 identity 확장 |
+| unicode.ToTitle | 2,656 + 11 | 별도 title delta를 포함한 전체 변경점과 같은 경계 범위, 별도 int64 identity 확장 |
+| Case inspector Describe consumer | 3,602 + 11 | 원입력·세 변환·int32 범위와 scalar 유효성을 독립 Go 함수로 비교, 별도 int64 identity 확장 |
 
 별도 `go run ./cmd/check-unicode --out out/unicode-exhaustive`는 실제 importing 프로그램의
 수정하지 않은 생성 Go를 빌드해 **0..U+10FFFF의 1,114,112개 입력**에서 두 분류 함수를
@@ -511,15 +526,21 @@ signed int32 전체 전수 검사 또는 전체 Unicode 패키지 호환성을 �
 이 검사는 위 유한 영수증 집계와 별개이고, 전체 int32 또는 모든 두-rune 쌍을
 전수 검사했다는 뜻이 아닙니다. 정수 영역 밖 샘플도 따로 집계합니다.
 
+case mapping 네 포트도 검증된 생성 Go를 수정 없이 실행합니다. `To`의 세 유효 case와
+`ToUpper`·`ToLower`·`ToTitle` 각각에 대해 **0..U+10FFFF**를 비교한 총 **6,684,672번**의
+관측은 `case_mapping_exhaustive`에 따로 기록합니다. 다른 int32 값·잘못된 case·int64 확장은
+별도의 유한 비교이며, 소비 앱 전체 입력이나 모든 int32·case 선택자를 전수 검사한 것은 아닙니다.
+
 YCbCr 두 변환도 검증된 실행·재실행의 생성 Go를 그대로 빌드해 각 **16,777,216개**
 byte 3성분 입력을 Go 원본과 비교합니다. 총 **33,554,432번**의 비교는 위 영수증
 사례 수와 따로 집계하며, 요약의 `ycbcr_exhaustive`와 각 `ycbcr-exhaustive-*` 폴더에
 생성 소스 해시·도구체인·결과를 기록합니다. 소비 앱의 모든 RGB 왕복을 실행하거나
 이미지 압축·색상 프로파일을 검증한 것으로 해석하지 않습니다.
 
-Gooo 실행 입력 상한에 맞춰 총 **531개 배치**를 실행합니다. 기존 YCbCr까지의 465개 배치를 유지하고,
+Gooo 실행 입력 상한에 맞춰 총 **719개 배치**를 실행합니다. 기존 YCbCr까지의 465개 배치를 유지하고,
 Canon 6개·드래그 선택 소비 활동 16개, x/image Floor/Ceil 각각 14개와 픽셀 경계 소비 활동
-16개 배치를 추가합니다.
+16개 배치까지의 기존 531개를 보존합니다. case mapping 네 포트 131개와 새 소비 앱 57개
+배치를 추가합니다. case mapping 포트는 배치당 128건 이하, 소비 앱은 64건 이하입니다.
 Unicode 앱과 색상 포트는 64건 이하, 색상 소비 앱은 32건 이하입니다.
 사각형의 단항 연산은 64건 이하, 이항 연산과 소비 앱은 32건 이하입니다.
 새 레코드 기대값도 들여쓴 JSON과 마지막 개행을 포함해 32KiB 한도를 검사합니다.
@@ -608,7 +629,8 @@ BSD 3-Clause 라이선스입니다. Go 원본 저작권과
 [작은 native 예제](examples/fixed-pixel-bounds/README.md)는 raw Q26.6 좌표를
 Floor/Ceil로 바꾸고 기존 RectangleIntersect로 잘라냅니다. 기존 35,042건은 그대로
 유지하며 포트 참조 1,664건·영역 밖 거부 16건, 소비자 참조 471건·raw 영역 거부
-33건·Ceil overflow 거부 6건을 더합니다. 전체 finite 코퍼스는 37,232건·45개 suite,
-31개 포트입니다. 새 소비 예제는 12번째이며 총 소비 활동은 14개입니다.
+33건·Ceil overflow 거부 6건을 더합니다. 이 단계까지의 finite 코퍼스 37,232건·45개 suite,
+31개 포트는 보존됩니다. 픽셀 경계는 12번째 소비 예제이며, 이후 case mapping 네 포트와
+13번째 소비 예제를 더한 현재 총계는 35개 포트·15개 소비 활동입니다.
 원본 int32 전체의 동작을 구현하되 2^32 전수 검사를 주장하지 않습니다.
 브라우저 21함수와 두 crop 모드는 그대로입니다.

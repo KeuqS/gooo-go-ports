@@ -1,0 +1,9 @@
+{
+  "schema": "gooo/package-workspace-manifest/v1",
+  "entry": {"package_path": "app/case-inspector", "activity": "Describe"},
+  "packages": [
+    {"path": "go/unicode", "sources": ["ports/unicode/space.gooo", "ports/unicode/case_mapping.gooo"]},
+    {"path": "go/unicode/utf8", "sources": ["ports/unicode/utf8.gooo"]},
+    {"path": "app/case-inspector", "sources": ["examples/case-inspector/main.gooo"]}
+  ]
+}
