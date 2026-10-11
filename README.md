@@ -168,7 +168,7 @@ with the page URL or command and what happened. A working demo or shared input l
 is not required. See [reporting guidance](CONTRIBUTING.md#report-a-problem) for useful details.
 
 Go로 작성된 오픈소스의 동작을 **Gooo 함수로 이식하고 원본과 비교**하는 공개 실험 저장소입니다.
-현재 Go 표준 라이브러리와 x/image의 HTTP·Unicode·8비트 정수·색상 변환·시간 간격·사각형·고정소수점 함수 31개를 표현합니다.
+현재 Go 표준 라이브러리와 x/image의 HTTP·Unicode·8비트 정수·색상 변환·시간 간격·사각형·고정소수점 함수 35개를 표현합니다.
 Go 소스를 분석해 타입·경계값·실패 동작을 명시하고, 계산은 `ports/**/*.gooo`에 구현합니다.
 Go 검증 도구는 원본 함수 호출, 입력 전달, 결과 비교와 실행 기록 저장을 맡습니다.
 
@@ -184,6 +184,7 @@ Go 검증 도구는 원본 함수 호출, 입력 전달, 결과 비교와 실행
 | `go/unicode` | `IsLetter`, `IsDigit` | Unicode 17.0.0 전체 Letter(L)·decimal digit(Nd) 범위와 stride 보존. 원본 표에서 결정적으로 Gooo 분기 생성 |
 | `go/unicode` | `IsSpace` | Unicode 17.0.0 White_Space 속성의 25개 코드 포인트 판정. 전체 signed int32 rune 입력 유지 |
 | `go/unicode` | `SimpleFold` | Unicode 17.0.0 단순 대소문자 접기의 다음 순환 멤버. ASCII·특수 순환·case range 우선순위 및 전체 int32 입력 보존. Native 전용 |
+| `go/unicode` | `To`, `ToUpper`, `ToLower`, `ToTitle` | Unicode 17.0.0 한 rune의 단순 대문자·소문자·제목형 변환. 전체 CaseRanges를 공유하고 별도 title delta와 range 시작점 기준 교대 parity 보존. Native 전용 |
 | `go/unicode/utf8` | `ValidRune`, `RuneLen` | Unicode 유효 코드 포인트 판정과 UTF-8 바이트 수 |
 | `go/unicode/utf8` | `RuneStart` | 0..255의 바이트가 continuation byte가 아닌지 판정. 전체 문자열 유효성 검사는 아님 |
 | `go/unicode/utf16` | `IsSurrogate`, `RuneLen` | 서로게이트 판정과 UTF-16 코드 단위 수 |
@@ -194,6 +195,7 @@ Go 검증 도구는 원본 함수 호출, 입력 전달, 결과 비교와 실행
 | `go/image/color` | `RGBToYCbCr`, `YCbCrToRGB` | 각 채널 0..255의 RGB·Y′CbCr 3성분 변환. Go의 고정 소수점·반올림·포화 보존. 다중 반환은 `YCbCr`·`RGB` 레코드. Native 전용 |
 | `go/time` | `DurationRound`, `DurationTruncate` | Go Duration 메서드의 수신 객체를 첫 인수로 전달. 두 signed int64 나노초 입력의 반올림·절삭과 범위 초과 시 포화 |
 | `go/image` | `RectangleEmpty`, `RectangleOverlaps`, `RectangleIntersect`, `RectangleUnion`, `RectangleCanon` | 수신 사각형을 첫 레코드 인수로 전달. Go의 네 좌표를 signed int64 필드로 보존하며 기존 네 활동은 빈·뒤집힌 입력을 정규화하지 않음. `RectangleCanon`만 뒤집힌 축을 비교·교환. Native에서 다섯 함수를 실행하며 [브라우저 crop](examples/crop-planner/README.md)은 `Intersect` + `Empty`를 조합 |
+| `go/golang.org/x/image/math/fixed` | `Int26_6Floor`, `Int26_6Ceil` | signed int32 Q26.6 원시 좌표의 정수 경계. 원본 overflow를 보존하며 반환값은 `{in_fixed_domain, value}` 레코드. Native 전용 |
 
 원본의 `rune` 입력은 int32 범위를 Gooo Integer로 전달합니다. `byte` 호환 범위는
 0..255입니다. 묵시적으로 정수 폭을 줄이지 않습니다. `RuneStart`의 범위 밖 입력은
@@ -205,6 +207,10 @@ int32 밖 Integer도 그대로 반환하는 별도 확장 계약이며, Go rune 
 두 rune 비교 예제의 `in_rune_domain`은 int32 범위를 뜻합니다. 유효 Unicode 스칼라 판정이 아니며,
 같은 잘못된 Unicode 값 두 개도 같은 고정점으로 비교됩니다. `İ`·`ı`는 각각 고정점이고,
 `K → k → K → K` 등의 특수 순환을 단순 소문자 변환으로 대체하지 않습니다.
+`To`의 첫 인수는 0(대문자)·1(소문자)·2(제목형)이며, 다른 값이면 rune 범위 검사보다 먼저
+U+FFFD를 반환합니다. 유효한 case와 세 단항 변환은 int32 안의 잘못된 Unicode 값을
+그대로 보존하고, int32 밖 입력도 별도 identity 확장으로 유지합니다. 전체 문자열이나
+지역별 변환이 아니며, [검사 예제](examples/case-inspector/README.md)는 원입력과 세 결과를 함께 반환합니다.
 NEL(U+0085)은 공백이고 BOM(U+FEFF)·ZERO WIDTH SPACE(U+200B)는 공백이 아닙니다.
 JavaScript의 `\s`·`trim`과는 다른 판정이며, 보이지 않는 문자 전체를 탐지하지 않습니다.
 `go/math/bits`의 여섯 함수는 바이트 영역 밖에서 별도 확장 동작인 -1을 반환합니다.
@@ -214,7 +220,7 @@ Go의 byte 변환처럼 입력을 잘라서 계산하지 않습니다. 0의 앞�
 YCbCr 변환은 Go의 JFIF 계수와 채널 포화를 보존합니다. 역변환은 `Y′ * 65793`을
 그대로 사용하며 음수·상한 밖 분자를 먼저 처리해 signed shift를 안전한 나눗셈으로 옮깁니다.
 두 파일 `ports/image/color.gooo`와 `ports/image/ycbcr.gooo`를 함께 가져와야 합니다.
-`StatusText`와 `RotateLeft8`의 Go int 입력 비교는 int가 64비트인 amd64·arm64에서 실행합니다.
+`StatusText`·`RotateLeft8`·`To`의 Go int 입력 비교는 int가 64비트인 amd64·arm64에서 실행합니다.
 회전 수는 int64 전체를 보존하며, 나머지를 먼저 계산해 최솟값의 부호 반전을 피합니다.
 원본 RotateLeft8의 입력에 무관한 실행시간 보장은 분기·산술로 구현한 포트에 계승하지 않습니다.
 시간 간격의 두 입력은 signed int64 나노초 전체 범위입니다. 단위가 0 이하이면 원래 값을
