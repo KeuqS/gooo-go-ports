@@ -1,0 +1,19 @@
+// Inspect the three simple Unicode case mappings for one original integer.
+// This does not transform strings, select locale rules, or normalize text.
+package case_inspector
+namespace gooo_ports_examples_case_inspector
+import unicode "go/unicode"
+import utf8 "go/unicode/utf8"
+entity Integer id "gooo://std/integer"
+entity CaseReport id "gooo://go-ports/examples/case-inspector/report" fields {
+    field in_rune_domain id "gooo://go-ports/examples/case-inspector/report/in-rune-domain" type boolean required one
+    field valid_scalar id "gooo://go-ports/examples/case-inspector/report/valid-scalar" type boolean required one
+    field original id "gooo://go-ports/examples/case-inspector/report/original" type integer required one
+    field upper id "gooo://go-ports/examples/case-inspector/report/upper" type integer required one
+    field lower id "gooo://go-ports/examples/case-inspector/report/lower" type integer required one
+    field title id "gooo://go-ports/examples/case-inspector/report/title" type integer required one
+}
+activity Describe(Integer) -> CaseReport id "gooo://go-ports/examples/case-inspector/describe" computes `if input < -2147483648 || input > 2147483647 {
+    return CaseReport{in_rune_domain: false, valid_scalar: false, original: input, upper: input, lower: input, title: input}
+}
+return CaseReport{in_rune_domain: true, valid_scalar: utf8.ValidRune(input), original: input, upper: unicode.ToUpper(input), lower: unicode.ToLower(input), title: unicode.ToTitle(input)}`

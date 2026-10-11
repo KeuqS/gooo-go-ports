@@ -25,6 +25,12 @@ func whitespaceResultContract(s suite) resultContract {
 		return geometry
 	}
 	switch s.Package + ":" + s.Activity {
+	case "go/unicode:To", "go/unicode:ToUpper", "go/unicode:ToLower", "go/unicode:ToTitle":
+		return resultContract{Entity: integerEntity}
+	case "app/case-inspector:Describe":
+		const e = "gooo://go-ports/examples/case-inspector/report"
+		return resultContract{Entity: e, Fields: []recordFieldContract{{"in_rune_domain", e + "/in-rune-domain"}, {"valid_scalar", e + "/valid-scalar"}, {"original", e + "/original"}, {"upper", e + "/upper"}, {"lower", e + "/lower"}, {"title", e + "/title"}}}
+
 	case fixedPackage + ":Int26_6Floor", fixedPackage + ":Int26_6Ceil":
 		const e = "gooo://golang.org/x/image/math/fixed/int26-6-result"
 		return resultContract{Entity: e, Fields: []recordFieldContract{{"in_fixed_domain", e + "/in-fixed-domain"}, {"value", e + "/value"}}}
