@@ -5,7 +5,7 @@ when choosing Go libraries to port. They are deliberately kept outside `ports/`.
 The loop and byte-index fixtures now support the upstream
 [bounded traversal and Text byte-access request](https://github.com/kimjooyoon/meta-ontology-go/issues/1462)
 for string-search ports. That request also records their unchanged rejection in
-Gooo `0.6.29-dev`; the observations below retain this repository's pinned compiler.
+Gooo `0.6.29-dev`; the observations below retain the original compiler snapshot.
 It is a feature request, not an accepted implementation or an external customer report.
 The bitwise fixture remains separate evidence without an upstream request here.
 

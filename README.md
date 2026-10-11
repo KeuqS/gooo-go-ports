@@ -28,6 +28,12 @@ to save a new execution record and replay it. Setup downloads the pinned compile
 and may also download Go 1.27.2, depending on the installed toolchain.
 [Full native port verification](#full-native-port-verification) is a separate check.
 
+Upgrading an existing checkout: bootstrap preserves an older `.compiler` and
+refuses to replace it. Use a fresh checkout in a new directory, or move both
+`.compiler` and `.gooo` into a separate backup directory before running bootstrap.
+Keep the old compiler with its saved execution records; this upgrade does not
+claim that every receipt from an older compiler can be replayed by the new one.
+
 The original 3,147-case corpus is unchanged. A Unicode inspector adds 334 Go-reference
 cases and 12 explicit domain-rejection cases; six unary byte-domain functions cover all 256 inputs.
 Color ports and their consumer add separate reference and rejection cases, detailed below.
@@ -588,8 +594,8 @@ Actions 실행에서 확인할 수 있습니다.
 
 [upstream.json](upstream.json)에 Go **1.27.2**의 커밋
 `022c8636110ebac86a9b88724cda168ed713c21f`, 파일 SHA-256,
-Gooo **0.6.24-dev** 컴파일러 커밋
-`366ee6ef8f9d2b9b57331dfd26b6f908c0289851`을 고정했습니다.
+Gooo **0.6.29-dev** 컴파일러 커밋
+`90ff2bb5aeffc2ac553496b646d14db1e8d33fdb`을 고정했습니다.
 테스트의 Go 도구 체인에서도 원본 파일 해시가 일치해야 합니다.
 
 BSD 3-Clause 라이선스입니다. Go 원본 저작권과

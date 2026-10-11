@@ -1,10 +1,14 @@
 # Go 라이브러리 이식을 위한 Gooo 관측
 
-2026-10-11 KST 기준으로 Gooo **0.6.24-dev**, 컴파일러 소스
-`366ee6ef8f9d2b9b57331dfd26b6f908c0289851`, Go **1.27.2**를 사용한다.
+이 문서는 최초 고정 조합의 관측 기록이다. 현재 실행용 컴파일러는
+[upstream.json](../upstream.json)을 따른다. 아래 소스 링크와 연구 결과는
+이전 스냅샷을 유지하며 현재 버전에 대한 새 기능 주장이 아니다.
+
+2026-10-11 KST의 최초 관측에서 Gooo **0.6.24-dev**, 컴파일러 소스
+`366ee6ef8f9d2b9b57331dfd26b6f908c0289851`, Go **1.27.2**를 사용했다.
 `gooo version --build --json`에서 `CLEAN_VCS`, 해당 소스 SHA,
 `go_version=go1.27.2`, `native_go_required=go1.27.2`를 확인했다.
-이는 이 저장소가 고정한 조합이며 모든 설치 환경의 기본 버전을 뜻하지 않는다.
+이는 당시 이 저장소가 고정한 조합이며 모든 설치 환경의 기본 버전을 뜻하지 않는다.
 
 별도 [바이트 입력 조건 실험](research/20261010-source-conditions/README.md)은 개발 리비전
 `92dc06b38f72518443f8a90e5c98a645f0c756f1`의 `condition_case`를 사용한다.

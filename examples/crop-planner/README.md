@@ -30,7 +30,7 @@ while pressing **Plan crop** creates a new local browser observation.
 ## 실행과 입력 편집
 
 Git, POSIX shell과 Go 1.27.2를 사용하며 저장소 루트에서 실행합니다.
-컴파일러는 `366ee6ef8f9d2b9b57331dfd26b6f908c0289851`로 고정합니다.
+컴파일러는 `90ff2bb5aeffc2ac553496b646d14db1e8d33fdb`로 고정합니다.
 모델이나 외부 추론 서비스는 필요하지 않습니다.
 
 ```sh

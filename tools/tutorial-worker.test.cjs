@@ -7,8 +7,8 @@ const protocol = require('../site/tutorial-protocol.js');
 const worker = require('../site/tutorial-worker.js');
 const bytes = Buffer.from('tutorial test program');
 const hash = value => createHash('sha256').update(value).digest('hex');
-const metadata = { schema: 'gooo/browser-tutorial/v1', compiler_revision: '366ee6ef8f9d2b9b57331dfd26b6f908c0289851',
-  compiler_version: '0.6.24-dev', go_version: 'go1.27.2', source_revision: 'b'.repeat(40), source_dirty: false,
+const metadata = { schema: 'gooo/browser-tutorial/v1', compiler_revision: '90ff2bb5aeffc2ac553496b646d14db1e8d33fdb',
+  compiler_version: '0.6.29-dev', go_version: 'go1.27.2', source_revision: 'b'.repeat(40), source_dirty: false,
   entry_id: 'urn:learn-gooo:describe', result_entity_id: 'urn:learn-gooo:summary',
   input_entity_ids: ['urn:gooo:type:integer', 'urn:gooo:type:string'], wasm_sha256: hash(bytes), wasm_bytes: bytes.length,
   generated_sha256: 'c'.repeat(64), execution_sha256: 'd'.repeat(64), replay_sha256: 'e'.repeat(64),
@@ -124,7 +124,9 @@ function runtimeScope(changes = {}) {
 test('hash, byte size and independent entry/type contract are checked before any Wasm instantiation', async () => {
   for (const change of [{ wasm_sha256: '0'.repeat(64) }, { wasm_bytes: 3 }, { schema: 'gooo/browser-demo/v2' },
     { entry_id: 'other' }, { result_entity_id: 'other' }, { input_entity_ids: ['urn:gooo:type:string', 'urn:gooo:type:integer'] },
-    { sample_sha256: {} }, { compiler_revision: 'a'.repeat(40) }, { source_zip_sha256: null }]) {
+    { sample_sha256: {} }, { compiler_revision: 'a'.repeat(40) },
+    { compiler_revision: '366ee6ef8f9d2b9b57331dfd26b6f908c0289851' }, { compiler_version: '0.6.24-dev' },
+    { compiler_revision: '366ee6ef8f9d2b9b57331dfd26b6f908c0289851', compiler_version: '0.6.24-dev' }, { source_zip_sha256: null }]) {
     const h = runtimeScope(change);
     await assert.rejects(worker.loadRuntime(h.scope, () => {}));
     assert.equal(h.instantiated, 0); assert.equal(h.imported, 0);
