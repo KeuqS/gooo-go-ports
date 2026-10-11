@@ -81,9 +81,31 @@ The build record should report the pinned compiler revision, Go 1.27.2 and
 `vcs_modified: "false"`. A successful `check` alone validates declarations;
 the `execute` command is what compiles and runs the bodies.
 
-Change `main.gooo` or `limits.gooo`, then execute to create a new record.
-For example, changing the `60` threshold changes which label is returned.
-Replay the newly created record with the matching sources and inputs.
+## Make one visible change
+
+In `main.gooo` (`examples/learn-gooo/main.gooo` in a repository checkout), change
+only the single `if score >= 60` condition to `if score >= 80`. Run the same four
+inputs again. The score `75` result changes from `sensor: high` to `sensor: low`;
+its `score: 75`, `remaining: 25` and `in_range: true` fields stay the same. The
+other three original examples are unchanged. This is an observation of these
+four inputs, not a proof for all inputs.
+
+Keep the original receipts. From the repository root, save and replay the edited
+program under new names:
+
+```sh
+mkdir -p out/learn-gooo
+./.gooo package execute --json --inputs examples/learn-gooo/inputs.json \
+  learn-gooo.workspace.json > out/learn-gooo/threshold-80-execution.json
+./.gooo package replay --json --receipt out/learn-gooo/threshold-80-execution.json \
+  --inputs examples/learn-gooo/inputs.json learn-gooo.workspace.json \
+  > out/learn-gooo/threshold-80-replay.json
+```
+
+For the downloaded bundle, use `./gooo`, `inputs.json` and `gooo.workspace.json`
+instead, with new `threshold-80-execution.json` and `threshold-80-replay.json`
+filenames. Replay the newly created record; the original receipt retains the
+original program. To return to the original example, change `80` back to `60`.
 
 ## Inputs and transport
 
