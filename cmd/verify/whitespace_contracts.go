@@ -25,6 +25,14 @@ func whitespaceResultContract(s suite) resultContract {
 		return geometry
 	}
 	switch s.Package + ":" + s.Activity {
+	case fixedPackage + ":Int26_6Floor", fixedPackage + ":Int26_6Ceil":
+		const e = "gooo://golang.org/x/image/math/fixed/int26-6-result"
+		return resultContract{Entity: e, Fields: []recordFieldContract{{"in_fixed_domain", e + "/in-fixed-domain"}, {"value", e + "/value"}}}
+	case "example/fixed-pixel-bounds:PixelBounds":
+		const e = "gooo://example/fixed-pixel-bounds/result"
+		f := []recordFieldContract{{"accepted", e + "/accepted"}}
+		f = append(f, rectangleFieldContracts(e)...)
+		return resultContract{Entity: e, Fields: append(f, recordFieldContract{"has_pixels", e + "/has-pixels"})}
 	case "go/image/color:RGBToYCbCr":
 		const entity = "gooo://go/image/color/ycbcr"
 		return resultContract{Entity: entity, Fields: []recordFieldContract{

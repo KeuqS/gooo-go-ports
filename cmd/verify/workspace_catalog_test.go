@@ -14,7 +14,7 @@ func TestVerificationCatalogSelectsPortsAndOnlyTheEntryConsumer(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(frozen.Catalog.Packages) != 19 || len(frozen.Sources) != 24 {
+	if len(frozen.Catalog.Packages) != 21 || len(frozen.Sources) != 26 {
 		t.Fatal("complete reviewed catalog roster changed")
 	}
 	allIdentities, err := snapshotSourceIdentities(frozen.Catalog.Packages, frozen.Sources)
@@ -61,7 +61,7 @@ func TestVerificationCatalogSelectsPortsAndOnlyTheEntryConsumer(t *testing.T) {
 		if strings.HasPrefix(s.Package, "go/") {
 			wantConsumers = 0
 		}
-		if ports != 8 || consumers != wantConsumers {
+		if ports != 9 || consumers != wantConsumers {
 			t.Fatal("selected package roster differs", ports, consumers)
 		}
 		if err := inspectWorkspace(image, s, contract, selected.Identities); err != nil {

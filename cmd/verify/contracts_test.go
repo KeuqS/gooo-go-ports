@@ -55,7 +55,11 @@ func allNativeSuites(t *testing.T) []suite {
 		t.Fatal(err)
 	}
 	all := append(append(append(append(append(append(append(append(append(suites, unicode.Suites...), colors.Suites...), rotations.Suites...), durations.Suites...), whitespace.Suites...), classification.Suites...), geometry.Suites...), folding.Suites...), ycbcr.Suites...)
-	return append(all, canonical.Suites...)
+	fixedBounds, err := fixedCorpus()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return append(append(all, canonical.Suites...), fixedBounds.Suites...)
 }
 
 func TestContractsMatchReviewedSourcesAndUnchangedCorpus(t *testing.T) {
@@ -65,7 +69,7 @@ func TestContractsMatchReviewedSourcesAndUnchangedCorpus(t *testing.T) {
 		t.Fatal(err)
 	}
 	suites := allNativeSuites(t)
-	if len(contracts) != 42 || len(suites) != 42 {
+	if len(contracts) != 45 || len(suites) != 45 {
 		t.Fatal("contract/suite roster changed")
 	}
 	seen := map[string]bool{}
@@ -138,6 +142,11 @@ func TestContractsMatchReviewedSourcesAndUnchangedCorpus(t *testing.T) {
 		t.Fatal(err)
 	}
 	added += canonical.PortReferenceCases + canonical.ConsumerReferenceCases
+	fixedBounds, err := fixedCorpus()
+	if err != nil {
+		t.Fatal(err)
+	}
+	added += fixedBounds.PortReferenceCases + fixedBounds.PortRejectionCases + fixedBounds.ConsumerReferenceCases + fixedBounds.ConsumerDomainRejectionCases + fixedBounds.ConsumerOverflowRejectionCases
 	if total != 24770+added {
 		t.Fatalf("corpus changed: %d", total)
 	}

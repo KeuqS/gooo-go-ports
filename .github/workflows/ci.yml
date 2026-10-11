@@ -33,6 +33,7 @@ jobs:
           python3 tools/bootstrap.test.py
           python3 tools/receipt_json_test.py
           python3 tools/check-drag-crop-example_test.py
+          python3 tools/check-fixed-pixel-bounds_test.py
       - name: Check pinned Unicode table generation
         run: |
           go run ./cmd/gen-unicode --check
@@ -58,6 +59,8 @@ jobs:
           ./.gooo check ports/image/color.gooo
           ./.gooo check ports/image/geometry.gooo
           ./.gooo check ports/image/canon.gooo
+          ./.gooo check ports/image/fixed.gooo
+          ./.gooo check examples/fixed-pixel-bounds/main.gooo
           ./.gooo check examples/crop-planner/drag_crop.gooo
           ./.gooo check ports/time/duration.gooo
           sh tools/probe.sh --out out/probes
@@ -68,7 +71,7 @@ jobs:
             .schema == "gooo/go-ports-differential/v1" and
             .go_version == "go1.27.2" and
             .compiler_revision == "366ee6ef8f9d2b9b57331dfd26b6f908c0289851" and
-            .ported_functions == 29 and .consumer_programs == 11 and .consumer_activities == 13 and
+            .ported_functions == 31 and .consumer_programs == 12 and .consumer_activities == 14 and
             .legacy_cases == 3147 and .unicode_reference_cases == 334 and .unicode_rejection_cases == 12 and
             .color_port_reference_cases == 1300 and .color_port_rejection_cases == 56 and
             .color_consumer_reference_cases == 637 and .color_consumer_rejection_cases == 24 and
@@ -80,6 +83,10 @@ jobs:
             .classification_port_reference_cases == 5043 and .classification_port_rejection_cases == 24 and
             .classification_consumer_reference_cases == 4570 and .classification_consumer_rejection_cases == 12 and
             .geometry_port_reference_cases == 1711 and .geometry_consumer_reference_cases == 486 and
+            .fixed_port_reference_cases == 1664 and .fixed_port_rejection_cases == 16 and
+            .fixed_consumer_reference_cases == 471 and .fixed_consumer_domain_rejection_cases == 33 and
+            .fixed_consumer_overflow_rejection_cases == 6 and
+            .fixed_oracle_source_sha256 == "b74f2166fce03cecfebb00d3e9641b559dab8ffb00d72139c1dc69ed1ac05725" and
             .canon_port_reference_cases == 371 and .drag_crop_consumer_reference_cases == 501 and
             .simple_fold_port_reference_cases == 3505 and .simple_fold_port_extension_cases == 11 and
             .simple_fold_consumer_reference_cases == 497 and .simple_fold_consumer_rejection_cases == 34 and
@@ -91,11 +98,19 @@ jobs:
               .input_count == 16777216 and .comparison_count == 16777216 and
               .component_comparison_count == 50331648 and .mismatches == 0 and
               .output_sha256 == .oracle_sha256) and
-            .cases == 35042 and .passed == 35042 and
-            (.runs | length) == 42 and
-            ([.runs[].cases] | add) == 35042 and ([.runs[].batches] | add) == 487 and
+            .cases == 37232 and .passed == 37232 and
+            (.runs | length) == 45 and
+            ([.runs[].cases] | add) == 37232 and ([.runs[].batches] | add) == 531 and
             all(.runs[]; .passed == .cases and .replay_equal == true)
           ' out/ci/summary.json
+      - name: Execute and verify fixed-point bounds example
+        run: |
+          ./.gooo package execute --json --inputs examples/fixed-pixel-bounds/inputs.json \
+            fixed-pixel-bounds.workspace.json > out/fixed-pixel-bounds.json
+          ./.gooo package replay --json --receipt out/fixed-pixel-bounds.json \
+            --inputs examples/fixed-pixel-bounds/inputs.json \
+            fixed-pixel-bounds.workspace.json > out/fixed-pixel-bounds-replay.json
+          python3 tools/check-fixed-pixel-bounds.py out/fixed-pixel-bounds.json out/fixed-pixel-bounds-replay.json
       - name: Exhaustively compare generated Unicode classifications
         run: go run ./cmd/check-unicode --out out/unicode-exhaustive
       - name: Execute and replay the input-only importing example

@@ -1,0 +1,229 @@
+{
+  "schema": "gooo/body-composition-inputs/v1",
+  "inputs": [
+    {
+      "example/fixed-pixel-bounds:PixelBounds.input0": {
+        "min_x": -10,
+        "min_y": -10,
+        "max_x": 10,
+        "max_y": 10
+      },
+      "example/fixed-pixel-bounds:PixelBounds.input1": {
+        "min_x": 32,
+        "min_y": 32,
+        "max_x": 96,
+        "max_y": 96
+      }
+    },
+    {
+      "example/fixed-pixel-bounds:PixelBounds.input0": {
+        "min_x": -10,
+        "min_y": -10,
+        "max_x": 10,
+        "max_y": 10
+      },
+      "example/fixed-pixel-bounds:PixelBounds.input1": {
+        "min_x": -65,
+        "min_y": -1,
+        "max_x": 1,
+        "max_y": 65
+      }
+    },
+    {
+      "example/fixed-pixel-bounds:PixelBounds.input0": {
+        "min_x": -10,
+        "min_y": -10,
+        "max_x": 10,
+        "max_y": 10
+      },
+      "example/fixed-pixel-bounds:PixelBounds.input1": {
+        "min_x": 32,
+        "min_y": 0,
+        "max_x": 32,
+        "max_y": 64
+      }
+    },
+    {
+      "example/fixed-pixel-bounds:PixelBounds.input0": {
+        "min_x": -10,
+        "min_y": -10,
+        "max_x": 10,
+        "max_y": 10
+      },
+      "example/fixed-pixel-bounds:PixelBounds.input1": {
+        "min_x": 2,
+        "min_y": 0,
+        "max_x": 1,
+        "max_y": 64
+      }
+    },
+    {
+      "example/fixed-pixel-bounds:PixelBounds.input0": {
+        "min_x": -10,
+        "min_y": -10,
+        "max_x": 10,
+        "max_y": 10
+      },
+      "example/fixed-pixel-bounds:PixelBounds.input1": {
+        "min_x": 0,
+        "min_y": 32,
+        "max_x": 64,
+        "max_y": 32
+      }
+    },
+    {
+      "example/fixed-pixel-bounds:PixelBounds.input0": {
+        "min_x": -10,
+        "min_y": -10,
+        "max_x": 10,
+        "max_y": 10
+      },
+      "example/fixed-pixel-bounds:PixelBounds.input1": {
+        "min_x": 0,
+        "min_y": 2,
+        "max_x": 64,
+        "max_y": 1
+      }
+    },
+    {
+      "example/fixed-pixel-bounds:PixelBounds.input0": {
+        "min_x": -10,
+        "min_y": -10,
+        "max_x": 10,
+        "max_y": 10
+      },
+      "example/fixed-pixel-bounds:PixelBounds.input1": {
+        "min_x": 640,
+        "min_y": 0,
+        "max_x": 704,
+        "max_y": 64
+      }
+    },
+    {
+      "example/fixed-pixel-bounds:PixelBounds.input0": {
+        "min_x": -10,
+        "min_y": -10,
+        "max_x": 10,
+        "max_y": 10
+      },
+      "example/fixed-pixel-bounds:PixelBounds.input1": {
+        "min_x": -704,
+        "min_y": -704,
+        "max_x": 704,
+        "max_y": 704
+      }
+    },
+    {
+      "example/fixed-pixel-bounds:PixelBounds.input0": {
+        "min_x": 10,
+        "min_y": 10,
+        "max_x": -10,
+        "max_y": -10
+      },
+      "example/fixed-pixel-bounds:PixelBounds.input1": {
+        "min_x": -64,
+        "min_y": -64,
+        "max_x": 64,
+        "max_y": 64
+      }
+    },
+    {
+      "example/fixed-pixel-bounds:PixelBounds.input0": {
+        "min_x": -9223372036854775808,
+        "min_y": -9223372036854775808,
+        "max_x": 9223372036854775807,
+        "max_y": 9223372036854775807
+      },
+      "example/fixed-pixel-bounds:PixelBounds.input1": {
+        "min_x": -2147483648,
+        "min_y": -2147483648,
+        "max_x": 2147483584,
+        "max_y": 2147483584
+      }
+    },
+    {
+      "example/fixed-pixel-bounds:PixelBounds.input0": {
+        "min_x": -9223372036854775808,
+        "min_y": -9223372036854775808,
+        "max_x": 9223372036854775807,
+        "max_y": 9223372036854775807
+      },
+      "example/fixed-pixel-bounds:PixelBounds.input1": {
+        "min_x": 0,
+        "min_y": 0,
+        "max_x": 2147483585,
+        "max_y": 64
+      }
+    },
+    {
+      "example/fixed-pixel-bounds:PixelBounds.input0": {
+        "min_x": -9223372036854775808,
+        "min_y": -9223372036854775808,
+        "max_x": 9223372036854775807,
+        "max_y": 9223372036854775807
+      },
+      "example/fixed-pixel-bounds:PixelBounds.input1": {
+        "min_x": 0,
+        "min_y": 0,
+        "max_x": 64,
+        "max_y": 2147483585
+      }
+    },
+    {
+      "example/fixed-pixel-bounds:PixelBounds.input0": {
+        "min_x": -9223372036854775808,
+        "min_y": -9223372036854775808,
+        "max_x": 9223372036854775807,
+        "max_y": 9223372036854775807
+      },
+      "example/fixed-pixel-bounds:PixelBounds.input1": {
+        "min_x": 2147483647,
+        "min_y": 0,
+        "max_x": 2147483647,
+        "max_y": 64
+      }
+    },
+    {
+      "example/fixed-pixel-bounds:PixelBounds.input0": {
+        "min_x": -9223372036854775808,
+        "min_y": -9223372036854775808,
+        "max_x": 9223372036854775807,
+        "max_y": 9223372036854775807
+      },
+      "example/fixed-pixel-bounds:PixelBounds.input1": {
+        "min_x": 2147483647,
+        "min_y": 0,
+        "max_x": 2147483646,
+        "max_y": 64
+      }
+    },
+    {
+      "example/fixed-pixel-bounds:PixelBounds.input0": {
+        "min_x": -9223372036854775808,
+        "min_y": -9223372036854775808,
+        "max_x": 9223372036854775807,
+        "max_y": 9223372036854775807
+      },
+      "example/fixed-pixel-bounds:PixelBounds.input1": {
+        "min_x": -2147483649,
+        "min_y": 0,
+        "max_x": 0,
+        "max_y": 0
+      }
+    },
+    {
+      "example/fixed-pixel-bounds:PixelBounds.input0": {
+        "min_x": 9007199254740993,
+        "min_y": 0,
+        "max_x": 9007199254740994,
+        "max_y": 1
+      },
+      "example/fixed-pixel-bounds:PixelBounds.input1": {
+        "min_x": 0,
+        "min_y": 0,
+        "max_x": 64,
+        "max_y": 64
+      }
+    }
+  ]
+}

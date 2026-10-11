@@ -15,3 +15,8 @@ This exception does not change the licenses of the Go ports or browser adapter.
 The original comparison code and text under docs/whitespace-comparison are
 Copyright 2026 asketeddy, prepared with OpenAI Codex assistance, and licensed
 under that directory's MIT LICENSE. This exception is limited to that directory.
+
+Fixed-point ports and the byte-preserved independent Go oracle copy:
+Copyright 2015 The Go Authors. All rights reserved.
+Adapted from golang.org/x/image/math/fixed at the revision recorded in upstream.json.
+BSD 3-Clause terms are reproduced in third_party/x-image/LICENSE.
