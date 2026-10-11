@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="See how signed Q26.6 bounds become integer pixels: preserve Go Int26_6.Ceil overflow, check empty selections before rounding, and clip with a native Gooo example.">
+  <meta name="theme-color" content="#f5f3eb">
+  <title>Rounding subpixel bounds with fixed.Int26_6 — Gooo ports</title>
+  <link rel="canonical" href="https://kimjooyoon.github.io/gooo-go-ports/fixed-point-bounds.html">
+  <link rel="stylesheet" href="./style.css">
+  <style>
+    .technical-note {
+      max-width: 840px;
+      margin: 0 auto;
+      padding: 44px 0 52px;
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    .technical-note h1 {
+      margin-bottom: 24px;
+    }
+
+    .technical-note h1 code {
+      font-size: .82em;
+      white-space: normal;
+    }
+
+    .technical-note h2 {
+      margin: 34px 0 14px;
+      font-size: 24px;
+      line-height: 1.3;
+    }
+
+    .technical-note p {
+      margin-bottom: 17px;
+    }
+
+    .technical-note .lede {
+      font-size: 21px;
+      line-height: 1.5;
+    }
+
+    .technical-note a {
+      color: var(--green);
+    }
+
+    .technical-note code {
+      font: .9em ui-monospace, SFMono-Regular, Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+
+    .technical-note .table-scroll {
+      overflow-x: auto;
+      margin: 22px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .technical-note .table-scroll:focus-visible {
+      outline: 3px solid #79ae89;
+      outline-offset: 4px;
+    }
+
+    .technical-note table {
+      width: 100%;
+      border-collapse: collapse;
+      font: 14px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .technical-note caption {
+      margin: 12px 0;
+      color: var(--muted);
+      font: 14px/1.5 ui-sans-serif, sans-serif;
+      text-align: left;
+    }
+
+    .technical-note th,
+    .technical-note td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .technical-note th {
+      background: var(--green-light);
+      font-weight: 650;
+    }
+
+    .technical-note th:first-child,
+    .technical-note td:first-child {
+      text-align: left;
+    }
+
+    .technical-note li {
+      margin: 8px 0;
+      padding-left: 4px;
+    }
+
+    .technical-note .note-disclosure {
+      margin-top: 34px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 620px) {
+      .technical-note {
+        padding: 30px 0 36px;
+        font-size: 16px;
+      }
+
+      .technical-note .lede {
+        font-size: 19px;
+      }
+
+      .technical-note th,
+      .technical-note td {
+        padding: 9px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#note-title">Skip to the note</a>
+  <div class="page-shell">
+    <header class="masthead">
+      <a class="wordmark" href="https://github.com/kimjooyoon/meta-ontology-go" aria-label="Gooo language on GitHub">gooo<span class="wordmark-dot" aria-hidden="true">.</span></a>
+      <span class="masthead-caption">The Go ports lab / experimental</span>
+      <nav class="repository-links" aria-label="Related pages">
+        <a class="text-link" href="./">Function demo</a>
+        <a class="text-link" href="./crop-planner.html">Crop planner</a>
+        <a class="text-link" href="https://github.com/kimjooyoon/gooo-go-ports">Port source ↗</a>
+      </nav>
+    </header>
+    <main class="technical-note" aria-labelledby="note-title">
+      <p class="eyebrow">TECHNICAL NOTE / NATIVE EXAMPLE</p>
+      <h1 id="note-title">Rounding subpixel bounds with <code>fixed.Int26_6</code></h1>
+      <p class="lede">A raw <code>Int26_6</code> value of 32 represents half a pixel. Converting its bounds to integer pixels requires both an arithmetic contract and an empty-selection rule.</p>
+      <p>This note uses <a href="https://github.com/golang/image/blob/b06f1de3f4900ff828b8f114c37eb9ea10dfed90/math/fixed/fixed.go#L19-L52">x/image revision <code>b06f1de3…</code></a> and Go 1.27.2. The original source defines <code>Int26_6</code> as signed int32, with 64 raw units per pixel. Its <code>Ceil</code> adds 63 in that type, then shifts right by six.</p>
+      <h2>The upper 63 raw values wrap</h2>
+      <p>At raw 2147483584, <code>Ceil</code> returns 33554431. At 2147483585, adding 63 wraps to −2147483648 before the shift, producing −33554432. Every raw value through 2147483647 has that same ceiling result. Replacing the addition with unrestricted int64 arithmetic would change the API's behavior.</p>
+      <div class="table-scroll" role="region" aria-label="Fixed-point reference results" tabindex="0"><table>
+      <caption>Direct calls to the unchanged upstream Go methods. “Pixels” is the exact raw/64 value.</caption>
+      <thead><tr><th scope="col">Raw int32</th><th scope="col">Pixels</th><th scope="col">Floor</th><th scope="col">Ceil</th></tr></thead>
+      <tbody>
+      <tr><td>-65</td><td>-1.015625</td><td>-2</td><td>-1</td></tr>
+      <tr><td>-32</td><td>-0.500000</td><td>-1</td><td>0</td></tr>
+      <tr><td>0</td><td>0.000000</td><td>0</td><td>0</td></tr>
+      <tr><td>32</td><td>0.500000</td><td>0</td><td>1</td></tr>
+      <tr><td>64</td><td>1.000000</td><td>1</td><td>1</td></tr>
+      <tr><td>2147483583</td><td>33554430.984375</td><td>33554430</td><td>33554431</td></tr>
+      <tr><td>2147483584</td><td>33554431.000000</td><td>33554431</td><td>33554431</td></tr>
+      <tr><td>2147483585</td><td>33554431.015625</td><td>33554431</td><td>-33554432</td></tr>
+      <tr><td>2147483647</td><td>33554431.984375</td><td>33554431</td><td>-33554432</td></tr>
+      </tbody></table></div>
+      <p>The <a href="https://github.com/kimjooyoon/gooo-go-ports/blob/82b4a1c627b1355bb312fe0f397261d9202ee2cd/ports/image/fixed.gooo">Gooo Floor/Ceil ports</a> preserve these results inside the original int32 domain. Their explicit API difference is a <code>{in_fixed_domain, value}</code> record. Raw inputs outside int32 return <code>{false, 0}</code> before arithmetic or narrowing.</p>
+      <h2>Check the original selection before rounding</h2>
+      <p>A useful graphics operation is to round a subpixel rectangle outward and intersect it with image bounds. The upstream <a href="https://github.com/golang/image/blob/b06f1de3f4900ff828b8f114c37eb9ea10dfed90/font/opentype/opentype.go#L159-L178">OpenType glyph code</a> uses Floor on minimum coordinates and Ceil on maximum coordinates.</p>
+      <p>For example, raw bounds <code>(32,32)–(96,96)</code> represent <code>(0.5,0.5)–(1.5,1.5)</code> pixels and expand to integer bounds <code>(0,0)–(2,2)</code> before clipping.</p>
+      <p>But raw X bounds <code>[32,32)</code> are empty. Rounding their endpoints first produces <code>[0,1)</code>, incorrectly giving the selection width. Reversed raw bounds such as <code>[2,1)</code> need the same early empty check.</p>
+      <p>The native <a href="https://github.com/kimjooyoon/gooo-go-ports/blob/82b4a1c627b1355bb312fe0f397261d9202ee2cd/examples/fixed-pixel-bounds/main.gooo">PixelBounds consumer</a> applies four steps:</p>
+      <ol>
+      <li>Reject any raw coordinate outside signed int32.</li>
+      <li>Return an accepted empty result for a raw zero-width, zero-height or reversed selection.</li>
+      <li>For a nonempty selection, reject either maximum coordinate above 2147483584, where Ceil wraps.</li>
+      <li>Call the imported Gooo Floor/Ceil functions, then the existing RectangleIntersect with the original int64 image bounds.</li>
+      </ol>
+      <p>The consumer's rejection rule is separate from the ports' compatibility contract. Rejection reports <code>accepted:false</code>; accepted empty selections report <code>accepted:true</code>. Both have zero output coordinates and <code>has_pixels:false</code>. Image bounds are never normalized.</p>
+      <h2>Reproduce and keep the scope precise</h2>
+      <p>The <a href="https://github.com/kimjooyoon/gooo-go-ports/blob/82b4a1c627b1355bb312fe0f397261d9202ee2cd/examples/fixed-pixel-bounds/README.md#run-and-verify">native example instructions</a> include execution, saved replay and a checker for 16 literal cases. This table records nine illustrative inputs; a separate check covered the 63-value upper tail against the byte-preserved Go source. Those sets overlap. These are finite observations, not an exhaustive test of all 2<sup>32</sup> raw inputs. The example computes coordinates; it does not render glyphs or process image pixels.</p>
+      <aside class="note-disclosure" aria-label="Authorship and attribution"><p>Drafted with OpenAI Codex for asketeddy, maintainer of Gooo Go Ports, an independent ecosystem project for the experimental <a href="https://github.com/kimjooyoon/meta-ontology-go">Gooo</a> language. Upstream code retains its <a href="https://github.com/golang/image/blob/b06f1de3f4900ff828b8f114c37eb9ea10dfed90/LICENSE">BSD license and Go Authors copyright</a>. This is an independent project.</p></aside>
+    </main>
+    <footer><span>Gooo Go Ports · An open-source experiment<br>Independent of Google and the Go project.</span><nav class="license-links" aria-label="Licenses and attribution"><a href="./LICENSE">License</a><a href="./NOTICE">Notice</a><a href="./third_party/GO-LICENSE">Go license</a></nav></footer>
+  </div>
+</body>
+</html>
