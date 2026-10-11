@@ -136,5 +136,23 @@
         "RotateLeft8"
       ]
     }
+  ],
+  "external_sources": [
+    {
+      "module": "golang.org/x/image",
+      "repository": "https://github.com/golang/image",
+      "revision": "b06f1de3f4900ff828b8f114c37eb9ea10dfed90",
+      "source": "math/fixed/fixed.go",
+      "source_sha256": "b74f2166fce03cecfebb00d3e9641b559dab8ffb00d72139c1dc69ed1ac05725",
+      "oracle_copy": "third_party/x-image/math/fixed/fixed.go",
+      "license": "third_party/x-image/LICENSE",
+      "license_sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+      "target": "ports/image/fixed.gooo",
+      "symbols": [
+        "Int26_6.Floor",
+        "Int26_6.Ceil"
+      ],
+      "api_mapping": "Original signed int32 raw Q26.6 input maps to Integer; Go int result becomes {in_fixed_domain,value}. Signed int32 addition overflow and arithmetic shift behavior are preserved within the complete original domain. Outside-domain Integer inputs return false/0 without conversion. Round and all other package methods are not ported."
+    }
   ]
 }

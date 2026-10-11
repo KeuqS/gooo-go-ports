@@ -1,0 +1,26 @@
+// Copyright 2015 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in third_party/x-image/LICENSE.
+// Adapted from golang.org/x/image/math/fixed Int26_6.Floor and Int26_6.Ceil,
+// revision b06f1de3f4900ff828b8f114c37eb9ea10dfed90.
+// Source SHA-256: b74f2166fce03cecfebb00d3e9641b559dab8ffb00d72139c1dc69ed1ac05725.
+// Integer receives the original raw Q26.6 bits as a signed integer, not pixels.
+// The explicit result record is an API change from Go's single int result.
+// Outside signed int32: in_fixed_domain=false, value=0; never silently narrow.
+package fixed
+namespace gooo_ports_x_image_fixed
+entity Integer id "gooo://std/integer"
+entity FixedResult id "gooo://golang.org/x/image/math/fixed/int26-6-result" fields {
+    field in_fixed_domain id "gooo://golang.org/x/image/math/fixed/int26-6-result/in-fixed-domain" type boolean required one
+    field value id "gooo://golang.org/x/image/math/fixed/int26-6-result/value" type integer required one
+}
+activity Int26_6Floor(Integer) -> FixedResult id "gooo://golang.org/x/image/math/fixed/Int26_6/Floor" computes `if input < -2147483648 || input > 2147483647 { return FixedResult{in_fixed_domain: false, value: 0} }
+let value = input / 64
+if input < 0 && input % 64 != 0 { value = value - 1 }
+return FixedResult{in_fixed_domain: true, value: value}`
+activity Int26_6Ceil(Integer) -> FixedResult id "gooo://golang.org/x/image/math/fixed/Int26_6/Ceil" computes `if input < -2147483648 || input > 2147483647 { return FixedResult{in_fixed_domain: false, value: 0} }
+let shifted = input + 63
+if shifted > 2147483647 { shifted = shifted - 4294967296 }
+let value = shifted / 64
+if shifted < 0 && shifted % 64 != 0 { value = value - 1 }
+return FixedResult{in_fixed_domain: true, value: value}`

@@ -2,9 +2,10 @@
 
 [Gooo](https://github.com/kimjooyoon/meta-ontology-go) is an experimental language for
 describing what programs should do and inspecting how they are built and run.
-This independent ecosystem project implements selected Go standard-library functions in Gooo,
-with independent Go reference outputs and saved replay. The current scope is
-29 HTTP, Unicode, 8-bit integer, color, duration, and rectangle functions, eleven native importing examples,
+This independent ecosystem project implements selected Go standard-library and x/image functions in Gooo,
+with independent Go reference outputs and saved replay: 29 standard-library ports
+and two ports from golang.org/x/image. The current scope is
+31 HTTP, Unicode, 8-bit integer, color, duration, rectangle and fixed-point functions, twelve native importing examples,
 and an importing browser dispatcher.
 Start by running and editing the small [Gooo tutorial](examples/learn-gooo/README.md).
 With Git, a POSIX shell and a Go installation that supports toolchain selection,
@@ -32,6 +33,13 @@ cases and 12 explicit domain-rejection cases; six unary byte-domain functions co
 Color ports and their consumer add separate reference and rejection cases, detailed below.
 Other domains use finite boundary cases and samples. This is an independent experimental port,
 not a complete Go package implementation or an official Google/Go project.
+
+The native [fixed-point pixel bounds example](examples/fixed-pixel-bounds/README.md)
+converts caller-supplied Q26.6 subpixel bounds outward to integer pixels and clips
+them with the existing rectangle port. It keeps raw empty selections empty,
+reports invalid/overflowing requests explicitly, and preserves upstream int32
+wrap behavior in the two low-level Floor/Ceil ports. It performs no font or image
+rendering and does not change the browser tools.
 
 [Try the browser demo](https://kimjooyoon.github.io/gooo-go-ports/) to run 21 HTTP, Unicode, byte, color, and duration functions
 without installing a compiler. It executes a precompiled Gooo program as WebAssembly;
@@ -146,7 +154,7 @@ with the page URL or command and what happened. A working demo or shared input l
 is not required. See [reporting guidance](CONTRIBUTING.md#report-a-problem) for useful details.
 
 Go로 작성된 오픈소스의 동작을 **Gooo 함수로 이식하고 원본과 비교**하는 공개 실험 저장소입니다.
-현재 Go 표준 라이브러리의 HTTP·Unicode·8비트 정수·색상 변환·시간 간격·사각형 함수 29개를 표현합니다.
+현재 Go 표준 라이브러리와 x/image의 HTTP·Unicode·8비트 정수·색상 변환·시간 간격·사각형·고정소수점 함수 31개를 표현합니다.
 Go 소스를 분석해 타입·경계값·실패 동작을 명시하고, 계산은 `ports/**/*.gooo`에 구현합니다.
 Go 검증 도구는 원본 함수 호출, 입력 전달, 결과 비교와 실행 기록 저장을 맡습니다.
 
@@ -442,7 +450,8 @@ int32 밖 identity 확장 **11건**, 두 rune 소비 앱은 원본 비교 **497�
 거부 **34건**을 추가한 기존 **31,014건**도 유지합니다. YCbCr 두 포트는 원본 비교
 **2,160건**과 영역 밖 거부 **48건**, 왕복 소비 앱은 원본 비교 **924건**과 거부 **24건**을
 추가한 기존 **34,170건**을 유지합니다. Canon **371건**과 드래그 선택 소비 활동
-**501건**을 별도로 더한 native 코퍼스는 **35,042건**, 이식 함수는 **29개**입니다.
+**501건**을 더한 기존 **35,042건**도 유지합니다. 여기까지가 표준 라이브러리 29개 포트이며,
+x/image 두 포트와 픽셀 경계 소비 예제의 별도 2,190건을 더하면 총 **37,232건**입니다.
 사각형의 네 좌표는
 각각 전체 signed int64 범위를 받으며 영역 밖 확장 계약이 없습니다.
 시간 간격은 두 입력의 전체 int64 범위를 받으며 영역 밖 확장 계약이 없습니다.
@@ -502,12 +511,14 @@ byte 3성분 입력을 Go 원본과 비교합니다. 총 **33,554,432번**의 �
 생성 소스 해시·도구체인·결과를 기록합니다. 소비 앱의 모든 RGB 왕복을 실행하거나
 이미지 압축·색상 프로파일을 검증한 것으로 해석하지 않습니다.
 
-Gooo 실행 입력 상한에 맞춰 총 **487개 배치**를 실행합니다. 기존 YCbCr까지의 465개 배치를 유지하고,
-Canon 6개·드래그 선택 소비 활동 16개 배치를 추가합니다.
+Gooo 실행 입력 상한에 맞춰 총 **531개 배치**를 실행합니다. 기존 YCbCr까지의 465개 배치를 유지하고,
+Canon 6개·드래그 선택 소비 활동 16개, x/image Floor/Ceil 각각 14개와 픽셀 경계 소비 활동
+16개 배치를 추가합니다.
 Unicode 앱과 색상 포트는 64건 이하, 색상 소비 앱은 32건 이하입니다.
 사각형의 단항 연산은 64건 이하, 이항 연산과 소비 앱은 32건 이하입니다.
 새 레코드 기대값도 들여쓴 JSON과 마지막 개행을 포함해 32KiB 한도를 검사합니다.
-원본 비교 기대값은 Gooo 구현과 별개인 Go 표준 함수로 계산합니다.
+원본 비교 기대값은 Gooo 구현과 별개인 Go 표준 함수 및 고정한 x/image 원본 메서드로 계산합니다.
+x/image 입력 영역 밖 false/0 레코드와 소비자 거부는 별도 계약으로 검사합니다.
 Unicode·색상·회전·공백 앱과 색상·회전·공백 포트의 영역 밖 기대값은 명시한 false/-1 계약으로 따로 검사합니다.
 검증 도구는 결과뿐 아니라 입력 순서, 원본 기대값, 함수·입력 타입 식별자,
 생성 코드 해시, 컴파일러·Go 버전, workspace·입력 파일 해시, 저장 재실행 연결을 검사합니다.
@@ -585,3 +596,13 @@ BSD 3-Clause 라이선스입니다. Go 원본 저작권과
 [원본 라이선스](third_party/GO-LICENSE), [NOTICE](NOTICE)를 보존합니다.
 기존 [Gooo standard library](https://github.com/kimjooyoon/gooo-standard-library)의
 기초 숫자·논리·문자열 함수와 함께 사용할 수 있도록 별도 패키지 경로를 사용합니다.
+
+## x/image 고정소수점 경계 → 픽셀 사각형
+
+[작은 native 예제](examples/fixed-pixel-bounds/README.md)는 raw Q26.6 좌표를
+Floor/Ceil로 바꾸고 기존 RectangleIntersect로 잘라냅니다. 기존 35,042건은 그대로
+유지하며 포트 참조 1,664건·영역 밖 거부 16건, 소비자 참조 471건·raw 영역 거부
+33건·Ceil overflow 거부 6건을 더합니다. 전체 finite 코퍼스는 37,232건·45개 suite,
+31개 포트입니다. 새 소비 예제는 12번째이며 총 소비 활동은 14개입니다.
+원본 int32 전체의 동작을 구현하되 2^32 전수 검사를 주장하지 않습니다.
+브라우저 21함수와 두 crop 모드는 그대로입니다.

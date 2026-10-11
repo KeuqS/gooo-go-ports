@@ -1,0 +1,25 @@
+// Convert a nonempty Q26.6 selection outward to pixel bounds, then clip it.
+// Coordinates only: no font loading, glyph rendering or image pixel processing.
+package fixed_pixel_bounds
+namespace gooo_ports_examples_fixed_pixel_bounds
+import fixed "go/golang.org/x/image/math/fixed"
+import geometry "go/image"
+entity PixelBoundsResult id "gooo://example/fixed-pixel-bounds/result" fields {
+    field accepted id "gooo://example/fixed-pixel-bounds/result/accepted" type boolean required one
+    field min_x id "gooo://example/fixed-pixel-bounds/result/min-x" type integer required one
+    field min_y id "gooo://example/fixed-pixel-bounds/result/min-y" type integer required one
+    field max_x id "gooo://example/fixed-pixel-bounds/result/max-x" type integer required one
+    field max_y id "gooo://example/fixed-pixel-bounds/result/max-y" type integer required one
+    field has_pixels id "gooo://example/fixed-pixel-bounds/result/has-pixels" type boolean required one
+}
+// input0 is original int64 image bounds; input1 is original raw Q26.6 bounds.
+activity PixelBounds(Rectangle, Rectangle) -> PixelBoundsResult id "gooo://example/fixed-pixel-bounds/pixel-bounds" computes `if input1.min_x < -2147483648 || input1.min_x > 2147483647 || input1.min_y < -2147483648 || input1.min_y > 2147483647 || input1.max_x < -2147483648 || input1.max_x > 2147483647 || input1.max_y < -2147483648 || input1.max_y > 2147483647 { return PixelBoundsResult{accepted: false, min_x: 0, min_y: 0, max_x: 0, max_y: 0, has_pixels: false} }
+if input1.min_x >= input1.max_x || input1.min_y >= input1.max_y { return PixelBoundsResult{accepted: true, min_x: 0, min_y: 0, max_x: 0, max_y: 0, has_pixels: false} }
+if input1.max_x > 2147483584 || input1.max_y > 2147483584 { return PixelBoundsResult{accepted: false, min_x: 0, min_y: 0, max_x: 0, max_y: 0, has_pixels: false} }
+let min_x = fixed.Int26_6Floor(input1.min_x)
+let min_y = fixed.Int26_6Floor(input1.min_y)
+let max_x = fixed.Int26_6Ceil(input1.max_x)
+let max_y = fixed.Int26_6Ceil(input1.max_y)
+let pixels = Rectangle{min_x: min_x.value, min_y: min_y.value, max_x: max_x.value, max_y: max_y.value}
+let clipped = geometry.RectangleIntersect(input0, pixels)
+return PixelBoundsResult{accepted: true, min_x: clipped.min_x, min_y: clipped.min_y, max_x: clipped.max_x, max_y: clipped.max_y, has_pixels: !geometry.RectangleEmpty(clipped)}`

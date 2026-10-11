@@ -13,7 +13,7 @@
 
 ## 이번에 옮기는 동작
 
-Go 1.27.2의 공개 소스와 동작을 읽고, 다음 **29개 함수**를 Gooo 활동으로 표현한다.
+Go 1.27.2의 공개 소스와 동작을 읽고, 기존 **29개 표준 라이브러리 함수**를 Gooo 활동으로 표현한다.
 패키지 전체, HTTP 서버, 문자열 인코더 전체 또는 Go API와의 바이너리 호환을 주장하지 않는다.
 
 | 원본 | Gooo 원본 | 표현 방법과 호환 범위 |
@@ -161,3 +161,13 @@ Text 길이는 문자 수가 아니며 UTF-8 정규화도 수행하지 않는다
 Min/Max/Clamp, 논리 함수, HasPrefix/HasSuffix/StripSuffix를 새 이식 실적으로 중복 집계하지 않는다.
 해당 라이브러리와 이 저장소의 목적은 각각 재사용 기본 함수와 원본 Go에 대한 동작 비교다.
 후속 기능과 재현 자료의 우선순위는 [로드맵](roadmap.md)에 기록한다.
+
+## 외부 Go 모듈의 작은 소비 예제
+
+`golang.org/x/image/math/fixed`의 고정 리비전 `b06f1de3f4900ff828b8f114c37eb9ea10dfed90`에서
+Int26_6.Floor/Ceil 두 메서드를 추가로 이식합니다. raw int32 영역 검사를 먼저 하고,
+Ceil의 int32 덧셈 wrap과 음수 산술 시프트를 int64 분기·나눗셈·나머지로 보존합니다.
+Go int 반환은 명시적 `{in_fixed_domain,value}` 레코드로 바뀝니다.
+[소비 예제](../examples/fixed-pixel-bounds/README.md)는 raw 빈 선택을 변환 전에 처리하고
+nonempty 최대 좌표의 Ceil overflow는 거부한 뒤 기존 RectangleIntersect를 사용합니다.
+폰트·픽셀 처리는 포함하지 않으며, 원본 fixed.go는 별도 BSD 고지와 SHA를 보존한 Go 오라클입니다.

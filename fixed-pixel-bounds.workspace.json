@@ -1,0 +1,27 @@
+{
+  "schema": "gooo/package-workspace-manifest/v1",
+  "entry": {
+    "package_path": "example/fixed-pixel-bounds",
+    "activity": "PixelBounds"
+  },
+  "packages": [
+    {
+      "path": "go/golang.org/x/image/math/fixed",
+      "sources": [
+        "ports/image/fixed.gooo"
+      ]
+    },
+    {
+      "path": "go/image",
+      "sources": [
+        "ports/image/geometry.gooo"
+      ]
+    },
+    {
+      "path": "example/fixed-pixel-bounds",
+      "sources": [
+        "examples/fixed-pixel-bounds/main.gooo"
+      ]
+    }
+  ]
+}
