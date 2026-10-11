@@ -19,8 +19,8 @@ From the repository root, with Git and Go 1.27.2 installed on `PATH`:
 
 Bootstrap fetches and builds the repository's pinned compiler. The pilot then
 uses that existing `../../.gooo` binary read-only, relative to its own directory.
-It checks revision `366ee6ef8f9d2b9b57331dfd26b6f908c0289851`, version
-`0.6.24-dev`, clean VCS state, and Go `1.27.2` against actual build information.
+It checks revision `90ff2bb5aeffc2ac553496b646d14db1e8d33fdb`, version
+`0.6.29-dev`, clean VCS state, and Go `1.27.2` against actual build information.
 
 If your `go` launcher uses automatic toolchain selection, select the toolchain
 for setup and pass its installed executable to the offline pilot:

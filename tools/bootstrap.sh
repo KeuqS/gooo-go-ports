@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 cd "$(dirname "$0")/.."
-revision=366ee6ef8f9d2b9b57331dfd26b6f908c0289851
+revision=90ff2bb5aeffc2ac553496b646d14db1e8d33fdb
 repository=https://github.com/kimjooyoon/meta-ontology-go.git
 required_go=go1.27.2
 

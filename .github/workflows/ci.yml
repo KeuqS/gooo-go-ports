@@ -44,8 +44,8 @@ jobs:
           sh tools/bootstrap.sh
           ./.gooo version --build --json > out/compiler-build.json
           jq -e '
-            .version == "0.6.24-dev" and
-            .compiler_source_sha == "366ee6ef8f9d2b9b57331dfd26b6f908c0289851" and
+            .version == "0.6.29-dev" and
+            .compiler_source_sha == "90ff2bb5aeffc2ac553496b646d14db1e8d33fdb" and
             .source_status == "CLEAN_VCS" and .vcs_modified == "false" and
             .go_version == "go1.27.2" and .native_go_required == "go1.27.2"
           ' out/compiler-build.json
@@ -70,7 +70,7 @@ jobs:
           jq -e '
             .schema == "gooo/go-ports-differential/v1" and
             .go_version == "go1.27.2" and
-            .compiler_revision == "366ee6ef8f9d2b9b57331dfd26b6f908c0289851" and
+            .compiler_revision == "90ff2bb5aeffc2ac553496b646d14db1e8d33fdb" and
             .ported_functions == 31 and .consumer_programs == 12 and .consumer_activities == 14 and
             .legacy_cases == 3147 and .unicode_reference_cases == 334 and .unicode_rejection_cases == 12 and
             .color_port_reference_cases == 1300 and .color_port_rejection_cases == 56 and

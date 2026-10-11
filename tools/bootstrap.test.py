@@ -68,7 +68,7 @@ class Bootstrap(unittest.TestCase):
         (self.app / "upstream.json").write_text(json.dumps(pin))
         self.env = dict(os.environ, PATH=str(self.base / "bin") + os.pathsep + os.environ["PATH"],
                         REAL_GIT=REAL_GIT, REAL_GO=REAL_GO, STATE_DIR=str(self.state),
-                        TEST_REVISION=self.revision, GOTOOLCHAIN="local", GOWORK="off")
+                        TEST_REVISION=self.revision, TEST_COMPILER_VERSION=PIN["compiler_version"], GOTOOLCHAIN="local", GOWORK="off")
         self.executable("git", '''import os,sys
 from pathlib import Path
 args=sys.argv[1:]
@@ -92,7 +92,7 @@ if args and args[0]=='build':
  output=Path(args[args.index('-o')+1])
  if os.environ.get('FAIL_BUILD'):
   output.write_text('partial failed build'); sys.exit(72)
- identity={'compiler_source_sha':os.environ['TEST_REVISION'],'version':'0.6.24-dev','go_version':'go1.27.2','native_go_required':'go1.27.2','source_status':'CLEAN_VCS','vcs_modified':'false'}
+ identity={'compiler_source_sha':os.environ['TEST_REVISION'],'version':os.environ['TEST_COMPILER_VERSION'],'go_version':'go1.27.2','native_go_required':'go1.27.2','source_status':'CLEAN_VCS','vcs_modified':'false'}
  if os.environ.get('BAD_IDENTITY'): identity[os.environ['BAD_IDENTITY']]='wrong'
  output.write_text("#!/bin/sh\\ncat <<'IDENTITY'\\n"+json.dumps(identity)+"\\nIDENTITY\\n")
  output.chmod(0o755); sys.exit(0)

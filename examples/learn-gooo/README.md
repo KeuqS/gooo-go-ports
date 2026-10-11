@@ -63,7 +63,7 @@ together, then build the exact compiler used by this example:
 export GOTOOLCHAIN=go1.27.2
 export GOWORK=off
 git clone https://github.com/kimjooyoon/meta-ontology-go.git compiler
-git -C compiler checkout 366ee6ef8f9d2b9b57331dfd26b6f908c0289851
+git -C compiler checkout 90ff2bb5aeffc2ac553496b646d14db1e8d33fdb
 cd compiler
 go build -o ../gooo ./cmd/gooo
 cd ..
