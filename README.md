@@ -6,8 +6,27 @@ This independent ecosystem project implements selected Go standard-library funct
 with independent Go reference outputs and saved replay. The current scope is
 29 HTTP, Unicode, 8-bit integer, color, duration, and rectangle functions, eleven native importing examples,
 and an importing browser dispatcher.
-Use Go 1.27.2, Git, and a POSIX shell on macOS or Linux: run `./tools/bootstrap.sh`, then
-`go run ./cmd/verify --out out/first` from this repository. The output directory must be new.
+Start by running and editing the small [Gooo tutorial](examples/learn-gooo/README.md).
+With Git, a POSIX shell and a Go installation that supports toolchain selection,
+run these commands from this repository's root on macOS or Linux:
+
+```sh
+export GOTOOLCHAIN=go1.27.2
+export GOWORK=off
+./tools/bootstrap.sh
+./.gooo package execute --inputs examples/learn-gooo/inputs.json \
+  learn-gooo.workspace.json
+```
+
+The four examples include score `75` returning `sensor: high`. In
+[examples/learn-gooo/main.gooo](examples/learn-gooo/main.gooo), change the one
+`if score >= 60` condition to `if score >= 80`, then rerun the last command:
+score `75` now returns `sensor: low`; its other three fields stay unchanged.
+Follow the [edit-and-replay steps](examples/learn-gooo/README.md#make-one-visible-change)
+to save a new execution record and replay it. Setup downloads the pinned compiler
+and may also download Go 1.27.2, depending on the installed toolchain.
+[Full native port verification](#full-native-port-verification) is a separate check.
+
 The original 3,147-case corpus is unchanged. A Unicode inspector adds 334 Go-reference
 cases and 12 explicit domain-rejection cases; six unary byte-domain functions cover all 256 inputs.
 Color ports and their consumer add separate reference and rejection cases, detailed below.
@@ -258,6 +277,10 @@ Two-corner selection 모드는 별도 `drag-crop/crop.wasm`의 `DragCropPlan`을
 입력 파일당 128개·32 KiB 제한을 지키도록 실제 JSON 바이트 크기로 나누며 사례를 생략하지 않습니다.
 배포물의 `evidence-index.json`에 모든 배치 입력·실행·재실행 파일과 해시가 있습니다.
 `execution.json`·`replay.json`은 첫 배치의 원본 바이트 별칭이며 전체 기록은 인덱스를 따릅니다.
+
+### Full native port verification
+
+This checks the port corpus and saved replay; it is separate from the small tutorial above.
 
 Go 1.27.2, Git, POSIX shell이 필요합니다. `go.mod`를 인식하는 Go 설치는 필요한
 도구 체인을 자동 선택할 수 있습니다. 저장소 루트에서 실행합니다.
